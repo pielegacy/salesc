@@ -1,0 +1,9 @@
+// Long way //
+gcc -c salesbase.c -o salesbase.o
+gcc -c cmdmain.c -o cmdmain.o
+gcc -c sqlite3.c -o sqlite3.o
+gcc -o test test.c salesbase.c
+
+// Short way //
+// Note : will only work if you have already compiled sqlite3 manually //
+make
