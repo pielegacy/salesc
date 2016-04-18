@@ -92,7 +92,7 @@ void console_readproductnames(){
     sqlite3_prepare_v2(db, "SELECT * FROM PRODUCTS", 128, &result, NULL);
     printf("-- BEGIN LIST --\n");   
     while ((rc = sqlite3_step(result)) == SQLITE_ROW){
-        printf("%s for $%0.2f\n", sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
+        printf("%d : %s for $%0.2f\n",sqlite3_column_int(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
     }
     printf("-- END LIST --");
     sqlite3_close(db);
@@ -156,16 +156,35 @@ void add_sell(Sell *sell){
     char *err = 0;
     add_payment(sell->sale_payment); // Adds the payment
     sqlite3_stmt *result;
-    sqlite3_prepare_v2(db, "SELECT * FROM SALES ORDER BY SALE_GROUP DESC LIMIT 1", 128, &result, NULL);
+    sqlite3_prepare_v2(db, "SELECT * FROM SALES ORDER BY SALE_GROUP DESC LIMIT 1;", 128, &result, NULL);
     salegroup = sqlite3_column_int(result, 1) + 1;
-    sqlite3_prepare_v2(db, "SELECT * FROM PAYMENTS ORDER BY SALE_GROUP DESC LIMIT 1", 128, &result, NULL);
+    sqlite3_prepare_v2(db, "SELECT * FROM PAYMENTS ORDER BY SALE_GROUP DESC LIMIT 1;", 128, &result, NULL);
     paymentid = sqlite3_column_int(result, 0) + 1;
-    printf("%d with a payment id of %d\n", salegroup, paymentid);
+    //printf("%d with a payment id of %d\n", salegroup, paymentid);
     char *testsql = sqlite3_mprintf("INSERT INTO SALES (SALE_GROUP, SALE_ITEM_ID, SALE_PAYMENT_ID) VALUES (%d, %d, %d);", sell->sale_group, 420, paymentid);  
-    printf("THIS IS A TEST : %s\n", testsql); 
+    //printf("THIS IS A TEST : %s\n", testsql); 
     rc = sqlite3_exec(db, testsql, callback, 0, &err);
     sqlite3_close(db);
 }
 void last_sale(){
     printf("Last");
 }
+
+// Value checkers (Short hand ways of finding values)
+// Doesn't work...
+// int find_product_id(const unsigned char *productname){
+//     sqlite3 *db;
+//     int rc;
+//     int id;
+//     rc = sqlite3_open("salesc.db", &db);
+//     char *errmessage = 0;
+//     sqlite3_stmt *result;
+//     sqlite3_prepare_v2(db, "SELECT * FROM PRODUCTS;", 128, &result, NULL);
+//     while ((rc = sqlite3_step(result)) == SQLITE_ROW){
+//         printf("%s\n", sqlite3_column_text(result, 1));
+//         if (sqlite3_column_text(result, 1) == productname)
+//             printf("FOUND\n");
+//     }
+//     sqlite3_close(db);
+//     return id;
+// }

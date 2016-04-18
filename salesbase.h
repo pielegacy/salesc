@@ -59,5 +59,10 @@ void add_sale(Sale *sale);
 // Add sell to Db
 void add_sell(Sell *sell);
 
+// Value Checkers
+// Not implemented properly
+// int find_product_id(const unsigned char *productname);
+
+
 void last_sale();
 #endif
