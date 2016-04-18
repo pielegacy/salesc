@@ -8,6 +8,7 @@
 /*
     Sales.c Base File
     This is the main file in which the basic functions of Sales.c are kept
+    Find us on github! https://github.com/pielegacy/salesc
 */
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
