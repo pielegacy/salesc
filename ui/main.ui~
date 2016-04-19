@@ -2,6 +2,7 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
+  <object class="GtkEntryCompletion" id="entrycompletion1"/>
   <object class="GtkApplicationWindow" id="mainwindow">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -30,24 +31,26 @@
         </child>
         <child>
           <object class="GtkFrame" id="frame_sale">
-            <property name="width_request">800</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
             <property name="label_xalign">0</property>
             <property name="shadow_type">none</property>
             <child>
               <object class="GtkGrid" id="grid2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="halign">end</property>
-                <property name="valign">end</property>
+                <property name="halign">baseline</property>
+                <property name="valign">baseline</property>
+                <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
                 <child>
                   <object class="GtkFrame" id="frame_payment">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">baseline</property>
-                    <property name="valign">baseline</property>
+                    <property name="valign">end</property>
                     <property name="label_xalign">0</property>
                     <property name="label_yalign">0</property>
                     <property name="shadow_type">none</property>
@@ -55,12 +58,15 @@
                       <object class="GtkBox" id="menu_pay">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="halign">end</property>
+                        <property name="valign">end</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkEntry" id="test_entry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="input_purpose">number</property>
+                            <property name="placeholder_text" translatable="yes">Cash</property>
+                            <property name="input_purpose">digits</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -69,10 +75,11 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="entry2">
+                          <object class="GtkEntry" id="payment_debit">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="input_purpose">number</property>
+                            <property name="placeholder_text" translatable="yes">Debit</property>
+                            <property name="input_purpose">digits</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -81,10 +88,11 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="entry3">
+                          <object class="GtkEntry" id="payment_credit">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="input_purpose">number</property>
+                            <property name="placeholder_text" translatable="yes">Credit</property>
+                            <property name="input_purpose">digits</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -96,7 +104,8 @@
                           <object class="GtkEntry" id="entry4">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="input_purpose">number</property>
+                            <property name="placeholder_text" translatable="yes">Cheque</property>
+                            <property name="input_purpose">digits</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -122,9 +131,30 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">4</property>
                   </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
