@@ -6,8 +6,8 @@
 #include <sqlite3.h>
 #include <unistd.h>
 
-static void change_text(GtkWidget *widget, GtkEntry *data){
-    const char* output = gtk_entry_get_text(data);
+static void change_text(GtkWidget *widget, gpointer data){
+    const char* output = gtk_entry_get_text(GTK_ENTRY(widget));
     printf("The text is : %s\n", output);
 }
 
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
     window = gtk_builder_get_object(builder, "mainwindow");
     g_signal_connect (window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     input = GTK_ENTRY(gtk_builder_get_object(builder, "test_entry"));
-    // g_signal_connect(input, "changed", G_CALLBACK(change_text), &input);
+    g_signal_connect(input, "changed", G_CALLBACK(change_text), NULL);
     
     
     
