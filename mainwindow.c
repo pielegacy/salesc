@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
     GtkEntry *input;
     GObject *sale_list;
     GObject *submit_button;
-          
+    // I <3 James Qu      
     builder = gtk_builder_new();
     gtk_builder_add_from_file(builder, "ui/main.ui", NULL);
     window = gtk_builder_get_object(builder, "mainwindow");
