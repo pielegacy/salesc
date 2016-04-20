@@ -12,7 +12,17 @@ static void change_text(GtkWidget *widget, gpointer data){
 }
 static void add_sale_list(GtkWidget *widget, GObject *list){
     GtkWidget *label;
-    label = gtk_label_new("Test");
+    sqlite3 *db;
+    int rc;
+    rc = sqlite3_open("salesc.db", &db);
+    char *errmessage = 0;
+    sqlite3_stmt *result;
+    sqlite3_prepare_v2(db, "SELECT * FROM PRODUCTS", 128, &result, NULL); 
+    while ((rc = sqlite3_step(result)) == SQLITE_ROW){
+        const char* label_text = sqlite3_column_text(result, 1);
+        label = gtk_label_new(label_text);
+    }
+    sqlite3_close(db);
     gtk_list_box_insert(GTK_LIST_BOX(list), label, 100);  
     gtk_widget_show_all(GTK_WIDGET(list)); 
 }
@@ -43,7 +53,7 @@ int main(int argc, char *argv[]){
     //     gtk_list_box_insert(GTK_LIST_BOX(sale_list), label, i);     
     // }
     gtk_widget_show_all(GTK_WIDGET(sale_list));
-    
+    // ADD db_create()
     gtk_main();
     
     return 0;
