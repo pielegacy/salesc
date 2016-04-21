@@ -1,6 +1,7 @@
 #ifndef SALESBASE_H_
 #define SALESBASE_H_
 
+// LOGIC FUNCTIONS //
 // A product is the way in which we store items
 typedef struct Products{
     int product_id;
@@ -60,6 +61,7 @@ void add_sale(Sale *sale);
 void add_sell(Sell *sell);
 // Returns pointer to Product From DB based on ID
 Product *search_product(int id);
+
 
 
 #endif

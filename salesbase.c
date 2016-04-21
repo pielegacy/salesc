@@ -50,7 +50,8 @@ Payment *new_payment(int id, PaymentType paytype, float received){
     temp->payment_amount = received;
     return temp;
 }
-void db_create(){ //TODO : ADD ABILITY TO INCLUDE TEST VALUES UPON STARTUP
+// Increment = 1 (doesn't auto increment)
+void db_create(){
     if (access("salesc.db", F_OK) == -1){
         sqlite3 *db;
         int rc;

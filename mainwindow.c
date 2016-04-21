@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "salesbase.h"
+#include "salesguihelpers.h"
 #include <sqlite3.h>
 #include <unistd.h>
 
@@ -10,24 +11,18 @@
 //     const char* output = gtk_entry_get_text(GTK_ENTRY(widget));
 //     printf("The text is : %s\n", output);
 // }
-static void add_sale_list(GtkWidget *widget, GObject *list){
+
+static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     GtkWidget *label;
     sqlite3 *db;
     int rc;
-    // rc = sqlite3_open("salesc.db", &db);
-    // char *errmessage = 0;
-    // sqlite3_stmt *result;
-    // sqlite3_prepare_v2(db, "SELECT * FROM PRODUCTS", 128, &result, NULL); 
-    // while ((rc = sqlite3_step(result)) == SQLITE_ROW){
-    //     const char* label_text = sqlite3_column_text(result, 1);
-    //     label = gtk_label_new(label_text);
-    // }
-    // sqlite3_close(db);
-    Product *searchproduct = search_product(6);
+    Product *searchproduct = search_product(atoi(gtk_entry_get_text(GTK_ENTRY(pair->input))));
+    // TODO: ADD PRICES
     const char* label_text = strdup(searchproduct->product_name);
     label = gtk_label_new(label_text);
-    gtk_list_box_insert(GTK_LIST_BOX(list), label, 100);  
-    gtk_widget_show_all(GTK_WIDGET(list)); 
+    gtk_list_box_insert(GTK_LIST_BOX(pair->output), label, 100);  
+    gtk_widget_show_all(GTK_WIDGET(pair->output)); 
+    gtk_entry_set_text(GTK_ENTRY(pair->input), "");
 }
 
 int main(int argc, char *argv[]){
@@ -47,10 +42,13 @@ int main(int argc, char *argv[]){
     submit_button = gtk_builder_get_object(builder, "submit_button");
     
     sale_list = gtk_builder_get_object(builder, "sale_products");
-    g_signal_connect(submit_button, "clicked", G_CALLBACK(add_sale_list), sale_list);
     
+    SearchSubmitPair *searchtolist = malloc(sizeof(SearchSubmitPair));
+    searchtolist->input = product_search;
+    searchtolist->output = sale_list;
+    g_signal_connect(submit_button, "clicked", G_CALLBACK(add_sale_list), searchtolist);
+    g_signal_connect(product_search, "activate", G_CALLBACK(add_sale_list), searchtolist);
     gtk_widget_show_all(GTK_WIDGET(sale_list));
-    // ADD db_create()
     gtk_main();
     
     return 0;
