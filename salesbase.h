@@ -58,11 +58,8 @@ void add_payment(Payment *payment);
 void add_sale(Sale *sale);
 // Add sell to Db
 void add_sell(Sell *sell);
-
-// Value Checkers
-// Not implemented properly
-// int find_product_id(const unsigned char *productname);
+// Returns pointer to Product From DB based on ID
+Product *search_product(int id);
 
 
-void last_sale();
 #endif

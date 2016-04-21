@@ -60,8 +60,8 @@
                         <property name="can_focus">False</property>
                         <property name="halign">end</property>
                         <property name="valign">end</property>
-                        <property name="hexpand">True</property>
-                        <property name="vexpand">True</property>
+                        <property name="hexpand">False</property>
+                        <property name="vexpand">False</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkEntry" id="test_entry">
@@ -138,22 +138,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkListBox" id="sale_products">
-                    <property name="width_request">600</property>
-                    <property name="height_request">200</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="vexpand">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                    <property name="width">6</property>
-                    <property name="height">4</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkButton" id="submit_button">
                     <property name="label" translatable="yes">Submit</property>
                     <property name="visible">True</property>
@@ -163,6 +147,49 @@
                   <packing>
                     <property name="left_attach">0</property>
                     <property name="top_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="product_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="placeholder_text" translatable="yes">Search Product By PLU, Name or Price</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">3</property>
+                    <property name="width">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="sales_scroll">
+                    <property name="height_request">200</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">baseline</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <property name="shadow_type">in</property>
+                    <property name="min_content_height">7</property>
+                    <child>
+                      <object class="GtkViewport" id="viewport1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkListBox" id="sale_products">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                    <property name="width">6</property>
+                    <property name="height">3</property>
                   </packing>
                 </child>
                 <child>

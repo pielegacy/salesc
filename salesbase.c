@@ -166,25 +166,23 @@ void add_sell(Sell *sell){
     rc = sqlite3_exec(db, testsql, callback, 0, &err);
     sqlite3_close(db);
 }
-void last_sale(){
-    printf("Last");
-}
 
-// Value checkers (Short hand ways of finding values)
-// Doesn't work...
-// int find_product_id(const unsigned char *productname){
-//     sqlite3 *db;
-//     int rc;
-//     int id;
-//     rc = sqlite3_open("salesc.db", &db);
-//     char *errmessage = 0;
-//     sqlite3_stmt *result;
-//     sqlite3_prepare_v2(db, "SELECT * FROM PRODUCTS;", 128, &result, NULL);
-//     while ((rc = sqlite3_step(result)) == SQLITE_ROW){
-//         printf("%s\n", sqlite3_column_text(result, 1));
-//         if (sqlite3_column_text(result, 1) == productname)
-//             printf("FOUND\n");
-//     }
-//     sqlite3_close(db);
-//     return id;
-// }
+// Returns Product From DB based on ID
+Product *search_product(int id){
+    Product *temp;
+    sqlite3 *db;
+    int rc;
+    int salegroup, paymentid;
+    rc = sqlite3_open("salesc.db", &db);
+    sqlite3_stmt *result;
+    char *err = 0;
+    char *search = sqlite3_mprintf("SELECT * FROM PRODUCTS WHERE PRODUCT_ID = %d;", id);
+    sqlite3_prepare_v2(db, search, 128, &result, NULL);
+    while ((rc = sqlite3_step(result)) == SQLITE_ROW){
+        const unsigned char *name = sqlite3_column_text(result, 1);
+        char *actualname = strdup(name);
+        temp = new_product(sqlite3_column_int(result, 0), actualname, sqlite3_column_double(result, 2));
+    }
+    sqlite3_close(db);
+    return temp;
+}
