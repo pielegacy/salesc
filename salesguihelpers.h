@@ -6,6 +6,8 @@
 typedef struct searchsubmit{
     GObject *input;
     GObject *output;
+    int count;
+    int values[100];
 } SearchSubmitPair;
 
 // Used for passing multiple fields to a callback function in GTK

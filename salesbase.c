@@ -179,10 +179,13 @@ Product *search_product(int id){
     char *err = 0;
     char *search = sqlite3_mprintf("SELECT * FROM PRODUCTS WHERE PRODUCT_ID = %d;", id);
     sqlite3_prepare_v2(db, search, 128, &result, NULL);
-    while ((rc = sqlite3_step(result)) == SQLITE_ROW){
+    if ((rc = sqlite3_step(result)) == SQLITE_ROW){
         const unsigned char *name = sqlite3_column_text(result, 1);
         char *actualname = strdup(name);
         temp = new_product(sqlite3_column_int(result, 0), actualname, sqlite3_column_double(result, 2));
+    }
+    else {
+        temp = new_product(sqlite3_column_int(result, 0), "DOESNT_EXIST", sqlite3_column_double(result, 2));
     }
     sqlite3_close(db);
     return temp;

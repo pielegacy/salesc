@@ -138,18 +138,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="submit_button">
-                    <property name="label" translatable="yes">Submit</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">4</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkEntry" id="product_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -159,7 +147,7 @@
                   <packing>
                     <property name="left_attach">0</property>
                     <property name="top_attach">3</property>
-                    <property name="width">6</property>
+                    <property name="width">5</property>
                   </packing>
                 </child>
                 <child>
@@ -191,6 +179,21 @@
                     <property name="width">6</property>
                     <property name="height">3</property>
                   </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="submit_button">
+                    <property name="label" translatable="yes">Submit</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>

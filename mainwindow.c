@@ -20,6 +20,9 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     // TODO: ADD PRICES
     const char* label_text = strdup(searchproduct->product_name);
     label = gtk_label_new(label_text);
+    printf("%s\n", label_text);
+    pair->count += 1;
+    printf("%s added, size of sale increased to : %d\n", searchproduct->product_name, pair->count);
     gtk_list_box_insert(GTK_LIST_BOX(pair->output), label, 100);  
     gtk_widget_show_all(GTK_WIDGET(pair->output)); 
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");
@@ -32,6 +35,7 @@ int main(int argc, char *argv[]){
     GObject *product_search;
     GObject *sale_list;
     GObject *submit_button;
+    int val[100];
     // I <3 James Qu      
     builder = gtk_builder_new();
     gtk_builder_add_from_file(builder, "ui/main.ui", NULL);
@@ -46,6 +50,8 @@ int main(int argc, char *argv[]){
     SearchSubmitPair *searchtolist = malloc(sizeof(SearchSubmitPair));
     searchtolist->input = product_search;
     searchtolist->output = sale_list;
+    searchtolist->count = 0;
+    memcpy(searchtolist->values, val, sizeof(val) + 1);
     g_signal_connect(submit_button, "clicked", G_CALLBACK(add_sale_list), searchtolist);
     g_signal_connect(product_search, "activate", G_CALLBACK(add_sale_list), searchtolist);
     gtk_widget_show_all(GTK_WIDGET(sale_list));
