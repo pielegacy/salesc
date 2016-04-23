@@ -11,22 +11,7 @@
 //     const char* output = gtk_entry_get_text(GTK_ENTRY(widget));
 //     printf("The text is : %s\n", output);
 // }
-
-static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
-    GtkWidget *label;
-    sqlite3 *db;
-    int rc;
-    Product *searchproduct = search_product(atoi(gtk_entry_get_text(GTK_ENTRY(pair->input))));
-    // TODO: ADD PRICES
-    const char* label_text = strdup(searchproduct->product_name);
-    label = gtk_label_new(label_text);
-    printf("%s\n", label_text);
-    pair->count += 1;
-    printf("%s added, size of sale increased to : %d\n", searchproduct->product_name, pair->count);
-    gtk_list_box_insert(GTK_LIST_BOX(pair->output), label, 100);  
-    gtk_widget_show_all(GTK_WIDGET(pair->output)); 
-    gtk_entry_set_text(GTK_ENTRY(pair->input), "");
-}
+static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair);
 
 int main(int argc, char *argv[]){
     GtkBuilder *builder;
@@ -58,4 +43,22 @@ int main(int argc, char *argv[]){
     gtk_main();
     
     return 0;
+}
+
+static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
+    GtkWidget *label;
+    sqlite3 *db;
+    int rc;
+    Product *searchproduct = search_product(atoi(gtk_entry_get_text(GTK_ENTRY(pair->input))));
+    // TODO: ADD PRICES
+    new_sale_group();
+    const char* label_text = strdup(searchproduct->product_name);
+    label = gtk_label_new(label_text);
+    printf("%s\n", label_text);
+    pair->values[pair->count] = searchproduct->product_id;
+    pair->count += 1;
+    printf("%s added, size of sale increased to : %d\n", searchproduct->product_name, pair->count);
+    gtk_list_box_insert(GTK_LIST_BOX(pair->output), label, 100);  
+    gtk_widget_show_all(GTK_WIDGET(pair->output)); 
+    gtk_entry_set_text(GTK_ENTRY(pair->input), "");
 }

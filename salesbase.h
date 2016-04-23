@@ -61,7 +61,8 @@ void add_sale(Sale *sale);
 void add_sell(Sell *sell);
 // Returns pointer to Product From DB based on ID
 Product *search_product(int id);
-
+// Find new sale_group
+int new_sale_group();
 
 
 #endif

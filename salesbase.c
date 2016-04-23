@@ -190,3 +190,22 @@ Product *search_product(int id){
     sqlite3_close(db);
     return temp;
 }
+
+int new_sale_group(){
+    int res = 0;
+    sqlite3 *db;
+    int rc;
+    int salegroup, paymentid;
+    rc = sqlite3_open("salesc.db", &db);
+    sqlite3_stmt *result;
+    char *err = 0;
+    char *search = "SELECT * FROM SALES;";
+    sqlite3_prepare_v2(db, search, 128, &result, NULL);
+    while ((rc = sqlite3_step(result)) == SQLITE_ROW){
+        if (sqlite3_column_int(result, 1) > res){
+            res = sqlite3_column_int(result, 1);
+        }
+    }
+    printf("NEWEST SALE GROUP : %d\n", res);
+    return res;
+}
