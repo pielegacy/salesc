@@ -206,6 +206,7 @@ int new_sale_group(){
             res = sqlite3_column_int(result, 1);
         }
     }
+    res += 1;
     printf("NEWEST SALE GROUP : %d\n", res);
     return res;
 }
