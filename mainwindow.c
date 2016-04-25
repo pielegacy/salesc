@@ -23,6 +23,7 @@ int main(int argc, char *argv[]){
     int val[100];
     // I <3 James Qu      
     builder = gtk_builder_new();
+    db_create();
     gtk_builder_add_from_file(builder, "ui/main.ui", NULL);
     window = gtk_builder_get_object(builder, "mainwindow");
     g_signal_connect (window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]){
     g_signal_connect(product_search, "activate", G_CALLBACK(add_sale_list), searchtolist);
     gtk_widget_show_all(GTK_WIDGET(sale_list));
     gtk_main();
-    
+
     return 0;
 }
 
@@ -50,14 +51,16 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     sqlite3 *db;
     int rc;
     Product *searchproduct = search_product(atoi(gtk_entry_get_text(GTK_ENTRY(pair->input))));
-    // TODO: ADD PRICES
     new_sale_group();
-    const char* label_text = strdup(searchproduct->product_name);
+    
+    char *res = malloc(strlen(searchproduct->product_name)*2 + 1);
+    sprintf(res, "$%0.2f : %s", searchproduct->product_cost, searchproduct->product_name);
+    const char* label_text = res;
     label = gtk_label_new(label_text);
     printf("%s\n", label_text);
     pair->values[pair->count] = searchproduct->product_id;
     pair->count += 1;
-    printf("%s added, size of sale increased to : %d\n", searchproduct->product_name, pair->count);
+    printf("%s added for $%0.2f, size of sale increased to : %d\n", searchproduct->product_name, searchproduct->product_cost, pair->count);
     gtk_list_box_insert(GTK_LIST_BOX(pair->output), label, 100);  
     gtk_widget_show_all(GTK_WIDGET(pair->output)); 
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");

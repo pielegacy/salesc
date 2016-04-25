@@ -209,3 +209,10 @@ int new_sale_group(){
     printf("NEWEST SALE GROUP : %d\n", res);
     return res;
 }
+char *price_string_concat(float price, char *string){
+    char price_string[10];
+    sprintf(price_string, "%0.2f", price);
+    char *res = malloc(strlen(price_string) + strlen(string) + 1);
+    sprintf(res, "$%s : %s", price_string, string);
+    return res;
+}

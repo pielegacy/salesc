@@ -63,6 +63,7 @@ void add_sell(Sell *sell);
 Product *search_product(int id);
 // Find new sale_group
 int new_sale_group();
-
+// Display price - string values
+char *price_string_concat(float price, char *string);
 
 #endif
