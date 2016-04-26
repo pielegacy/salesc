@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
     new_sale = gtk_builder_get_object(builder, "new_sale");
     
     g_signal_connect(new_sale, "clicked", G_CALLBACK(new_sale_window), builder);
-    
+    gtk_window_fullscreen(GTK_WINDOW(menu_window));
     new_sale_group();
     gtk_main();
 
@@ -97,6 +97,7 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     
     
     gtk_widget_show_all(GTK_WIDGET(sale_list));
+    gtk_widget_grab_focus(GTK_WIDGET(product_search));
 }
 // Adds a product to the sale list
 static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
