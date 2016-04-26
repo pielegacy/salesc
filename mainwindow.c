@@ -15,7 +15,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair);
 static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair);
 static void show_price(GtkWidget *widget, SearchSubmitPair *pair);
 static void clear_payment_field(GtkWidget *widget, SearchSubmitPair *pair);
-
+static void clear_window(GtkWidget *widget, GtkWidget *window);
 static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair);
 
 int salecount = 0;
@@ -48,6 +48,8 @@ int main(int argc, char *argv[]){
     
     payment_cash = gtk_builder_get_object(builder, "payment_cash");
     payment_debit = gtk_builder_get_object(builder, "payment_debit");
+    payment_credit = gtk_builder_get_object(builder, "payment_credit");
+    payment_cheque = gtk_builder_get_object(builder, "payment_cheque");
     
     SearchSubmitPair *searchtolist = malloc(sizeof(SearchSubmitPair));
     searchtolist->input = product_search;
@@ -58,11 +60,15 @@ int main(int argc, char *argv[]){
     
     //_signal_connect(submit_button, "clicked", G_CALLBACK(add_sale_list), searchtolist);
     g_signal_connect(product_search, "activate", G_CALLBACK(add_sale_list), searchtolist);
-    g_signal_connect(process_button, "clicked", G_CALLBACK(total_sale_list), searchtolist);
+    g_signal_connect(process_button, "clicked", G_CALLBACK(clear_window), window);
     g_signal_connect(payment_cash, "activate", G_CALLBACK(total_sale_list), searchtolist);
     g_signal_connect(payment_cash, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
     g_signal_connect(payment_debit, "activate", G_CALLBACK(total_sale_list), searchtolist);
     g_signal_connect(payment_debit, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
+    g_signal_connect(payment_credit, "activate", G_CALLBACK(total_sale_list), searchtolist);
+    g_signal_connect(payment_credit, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
+    g_signal_connect(payment_cheque, "activate", G_CALLBACK(total_sale_list), searchtolist);
+    g_signal_connect(payment_cheque, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
     
     gtk_widget_show_all(GTK_WIDGET(sale_list));
     new_sale_group();
@@ -70,7 +76,9 @@ int main(int argc, char *argv[]){
 
     return 0;
 }
-
+static void clear_window(GtkWidget *widget, GtkWidget *window){
+    gtk_window_close(GTK_WINDOW(window));
+}
 // Adds a product to the sale list
 static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     GtkWidget *label;
@@ -90,7 +98,8 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         pair->values[pair->count] = searchproduct->product_id;
         pair->count += 1;
         printf("%s added for $%0.2f, size of sale increased to : %d\n", searchproduct->product_name, searchproduct->product_cost, pair->count);
-        gtk_list_box_insert(GTK_LIST_BOX(pair->output), label, 100);  
+        gtk_list_box_insert(GTK_LIST_BOX(pair->output), label, 100);
+        //g_signal_connect(GTK_WIDGET(label), "clicked", G_CALLBACK(gtk_main_quit), NULL);  
         gtk_widget_show_all(GTK_WIDGET(pair->output));
     }
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");
@@ -112,7 +121,7 @@ static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         }
     }
     
-    if (atof(gtk_entry_get_text(GTK_ENTRY(widget))) >= cost){
+    if (atof(gtk_entry_get_text(GTK_ENTRY(widget))) >= cost && cost != 0 && atof(gtk_entry_get_text(GTK_ENTRY(widget))) != 0){
         sale_success(widget, pair);
     }
     else {
