@@ -14,6 +14,10 @@
 static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair);
 static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair);
 static void show_price(GtkWidget *widget, SearchSubmitPair *pair);
+static void clear_payment_field(GtkWidget *widget, SearchSubmitPair *pair);
+
+static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair);
+
 int salecount = 0;
 int main(int argc, char *argv[]){
     GtkBuilder *builder;
@@ -21,26 +25,29 @@ int main(int argc, char *argv[]){
     GObject *window;
     GObject *product_search;
     GObject *sale_list;
-    GObject *submit_button;
+    //GObject *submit_button;
     GObject *process_button;
-    
     // Price inputs
     GObject *payment_cash;
+    GObject *payment_debit;
+    GObject *payment_credit;
+    GObject *payment_cheque;
     
     int val[100];
     // I <3 James Qu      
     builder = gtk_builder_new();
-    db_create();
+    db_create(1);
     gtk_builder_add_from_file(builder, "ui/main.ui", NULL);
     window = gtk_builder_get_object(builder, "mainwindow");
     g_signal_connect (window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     
     product_search = gtk_builder_get_object(builder, "product_entry");
-    submit_button = gtk_builder_get_object(builder, "submit_button");
+    //submit_button = gtk_builder_get_object(builder, "submit_button");
     process_button = gtk_builder_get_object(builder, "payment_process");
     sale_list = gtk_builder_get_object(builder, "sale_products");
     
     payment_cash = gtk_builder_get_object(builder, "payment_cash");
+    payment_debit = gtk_builder_get_object(builder, "payment_debit");
     
     SearchSubmitPair *searchtolist = malloc(sizeof(SearchSubmitPair));
     searchtolist->input = product_search;
@@ -49,10 +56,13 @@ int main(int argc, char *argv[]){
     searchtolist->count = 0;
     memcpy(searchtolist->values, val, sizeof(val) + 1);
     
-    g_signal_connect(submit_button, "clicked", G_CALLBACK(add_sale_list), searchtolist);
+    //_signal_connect(submit_button, "clicked", G_CALLBACK(add_sale_list), searchtolist);
     g_signal_connect(product_search, "activate", G_CALLBACK(add_sale_list), searchtolist);
     g_signal_connect(process_button, "clicked", G_CALLBACK(total_sale_list), searchtolist);
     g_signal_connect(payment_cash, "activate", G_CALLBACK(total_sale_list), searchtolist);
+    g_signal_connect(payment_cash, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
+    g_signal_connect(payment_debit, "activate", G_CALLBACK(total_sale_list), searchtolist);
+    g_signal_connect(payment_debit, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
     
     gtk_widget_show_all(GTK_WIDGET(sale_list));
     new_sale_group();
@@ -90,19 +100,66 @@ static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     int i;
     float cost = 0.00;
     Product *temp = malloc(sizeof(temp) + 1);
+    char* placeholder = malloc(sizeof("0000000000.00") + 1);
     for (i = 0; i < pair->count; i++){
         if (pair->values[i] != 0){
             temp = search_product(pair->values[i]);
             printf("Value %s is %0.2f\n", temp->product_name, temp->product_cost);
             cost += temp->product_cost;
         }
+        else {
+            break;
+        }
     }
+    
     if (atof(gtk_entry_get_text(GTK_ENTRY(widget))) >= cost){
-        printf("IT WORKS LADS!\n");
+        sale_success(widget, pair);
+    }
+    else {
+        sprintf(placeholder, "%0.2f", cost);
+        gtk_entry_set_text(GTK_ENTRY(widget), placeholder);
     }
     printf("THE TOTAL COST IS $%0.2f\n", cost);
 }
+
 static void show_price(GtkWidget *widget, SearchSubmitPair *pair){
     int i = 0;
     printf("The count is %d\n", pair->count);
+}
+
+static void clear_payment_field(GtkWidget *widget, SearchSubmitPair *pair){
+    gtk_entry_set_text(GTK_ENTRY(widget), "");
+}
+
+static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
+    const gchar *widgettype = gtk_widget_get_name(paywidget);
+    //printf("TYPE IS %s", widgettype);
+    printf("Processing payment...\n");
+    Payment *temp;
+    int pay_type;
+    float paid = atof(gtk_entry_get_text(GTK_ENTRY(paywidget)));
+    if (strcmp("payment_cash", widgettype) == 0){
+        pay_type = 0;
+    }
+    else if (strcmp("payment_debit", widgettype) == 0)
+    {
+        pay_type = 1;
+    }
+    else if (strcmp("payment_credit", widgettype) == 0)
+    {
+        pay_type = CREDIT;
+    }
+    temp = new_payment(0,CASH,paid);
+    add_payment(temp);
+    int pay_id = recent_payment_id();
+    int sale_group = new_sale_group();
+    int i;
+    for (i = 0; i < pair->count; i++){
+        if (pair->values[i] != 0){
+            add_sell_from_id(new_sell_from_id(sale_group, pair->values[i], pay_id));
+        }
+        else {
+            break;
+        }
+    }
 }

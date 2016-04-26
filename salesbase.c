@@ -9,6 +9,9 @@
     Sales.c Base File
     This is the main file in which the basic functions of Sales.c are kept
     Find us on github! https://github.com/pielegacy/salesc
+    (You probably have already coz you have the source code lol)
+    (Unless you're me, or a tutor)
+    (If the latter, hey Steve or Andrew. How have you guys been?)
 */
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
@@ -34,16 +37,24 @@ Product *new_product(int id, char name[120], float cost){
 //     temp->sale_payment = new_payment(temp->sale_id, paytype, received); // 100 is placeholder code
 //     return temp;
 // }
-Sell *new_sell(int group, Product *product, PaymentType paytype, float received){
-    Sell *temp = malloc(sizeof(Sell));
-    temp->sale_group = group;
-    // memcpy(temp->sale_item, product, sizeof(product));
-    temp->sale_item = malloc(sizeof(Product));
-    temp->sale_item = product;
-    temp->sale_payment = new_payment(1000, paytype, received);
-    return temp;    
+// Sell *new_sell(int group, Product *product, PaymentType paytype, float received){
+//     Sell *temp = malloc(sizeof(Sell));
+//     temp->sale_group = group;
+//     // memcpy(temp->sale_item, product, sizeof(product));
+//     temp->sale_item = malloc(sizeof(Product));
+//     temp->sale_item = product;
+//     temp->sale_payment = new_payment(1000, paytype, received);
+//     return temp;    
+// }
+SellFromID *new_sell_from_id(int group, int product, int payment)
+{
+     SellFromID *temp = malloc(sizeof(SellFromID));
+     temp->sale_group = group;
+     temp->product_id = product;
+     temp->payment_id = payment;
+     
 }
-Payment *new_payment(int id, PaymentType paytype, float received){
+Payment *new_payment(int id, int paytype, float received){
     Payment *temp = malloc(sizeof(Payment));
     temp->payment_id = id;
     temp->payment_type = paytype;
@@ -51,7 +62,7 @@ Payment *new_payment(int id, PaymentType paytype, float received){
     return temp;
 }
 // Increment = 1 (doesn't auto increment)
-void db_create(){
+void db_create(int autoinc){
     if (access("salesc.db", F_OK) == -1){
         sqlite3 *db;
         int rc;
@@ -61,26 +72,48 @@ void db_create(){
             printf("Created datbase...\n");
         }
         // Using real numbers instead of floating point numbers (REAL = Float in Sqlite)
-        char *productsql = "CREATE TABLE PRODUCTS(" \
-            "PRODUCT_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
-            "PRODUCT_NAME VARCHAR(120) NOT NULL," \
-            "PRODUCT_COST REAL NOT NULL," \
-            "PRODUCT_DISCOUNT REAL);";
+        if (autoinc == 1){
+            char *productsql = "CREATE TABLE PRODUCTS(" \
+                "PRODUCT_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
+                "PRODUCT_NAME VARCHAR(120) NOT NULL," \
+                "PRODUCT_COST REAL NOT NULL," \
+                "PRODUCT_DISCOUNT REAL);";
+                
+            char *salessql = "CREATE TABLE SALES(" \
+            "SALE_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
+            "SALE_GROUP INTEGER NOT NULL," \
+            "SALE_ITEM_ID INTEGER NOT NULL," \
+            "SALE_PAYMENT_ID INTEGER NOT NULL);";
             
-        char *salessql = "CREATE TABLE SALES(" \
-        "SALE_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
-        "SALE_GROUP INTEGER NOT NULL," \
-        "SALE_ITEM_ID INTEGER NOT NULL," \
-        "SALE_PAYMENT_ID INTEGER NOT NULL);";
-        
-        char *paymentssql = "CREATE TABLE PAYMENTS(" \
-        "PAYMENT_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
-        "PAYMENT_TYPE INTEGER NOT NULL," \
-        "PAYMENT_AMOUNT REAL NOT NULL);";
-        
-        rc = sqlite3_exec(db, productsql, callback, 0, &errMessage);
-        rc = sqlite3_exec(db, salessql, callback, 0, &errMessage);
-        rc = sqlite3_exec(db, paymentssql, callback, 0, &errMessage);      
+            char *paymentssql = "CREATE TABLE PAYMENTS(" \
+            "PAYMENT_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
+            "PAYMENT_TYPE INTEGER NOT NULL," \
+            "PAYMENT_AMOUNT REAL NOT NULL);";
+            rc = sqlite3_exec(db, productsql, callback, 0, &errMessage);
+            rc = sqlite3_exec(db, salessql, callback, 0, &errMessage);
+            rc = sqlite3_exec(db, paymentssql, callback, 0, &errMessage); 
+        }
+        else {
+            char *productsql = "CREATE TABLE PRODUCTS(" \
+                "PRODUCT_ID INTEGER PRIMARY KEY," \
+                "PRODUCT_NAME VARCHAR(120) NOT NULL," \
+                "PRODUCT_COST REAL NOT NULL," \
+                "PRODUCT_DISCOUNT REAL);";
+                
+            char *salessql = "CREATE TABLE SALES(" \
+            "SALE_ID INTEGER PRIMARY KEY," \
+            "SALE_GROUP INTEGER NOT NULL," \
+            "SALE_ITEM_ID INTEGER NOT NULL," \
+            "SALE_PAYMENT_ID INTEGER NOT NULL);";
+            
+            char *paymentssql = "CREATE TABLE PAYMENTS(" \
+            "PAYMENT_ID INTEGER PRIMARY KEY," \
+            "PAYMENT_TYPE INTEGER NOT NULL," \
+            "PAYMENT_AMOUNT REAL NOT NULL);";
+            rc = sqlite3_exec(db, productsql, callback, 0, &errMessage);
+            rc = sqlite3_exec(db, salessql, callback, 0, &errMessage);
+            rc = sqlite3_exec(db, paymentssql, callback, 0, &errMessage);   
+        }   
         sqlite3_close(db);
     }
 }
@@ -125,45 +158,37 @@ void add_payment(Payment *payment){
     rc = sqlite3_open("salesc.db", &db);
     char *err = 0;
     char *testsql = sqlite3_mprintf("INSERT INTO PAYMENTS (PAYMENT_TYPE, PAYMENT_AMOUNT) VALUES (%d, %0.2f);", payment->payment_type, payment->payment_amount);
+    printf("%s \n",testsql);
     rc = sqlite3_exec(db, testsql, callback, 0, &err);
+    printf("ERROR : %s\n", err);
     sqlite3_close(db);
 }
-// Adds a sale (DOESN'T WORK)
-// void add_sale(Sale *sale){
+// Adds a sell (singular sale)
+// void add_sell(Sell *sell){
 //     sqlite3 *db;
 //     int rc;
-//     int salegroup;
+//     int salegroup, paymentid;
 //     rc = sqlite3_open("salesc.db", &db);
 //     char *err = 0;
+//     add_payment(sell->sale_payment); // Adds the payment
 //     sqlite3_stmt *result;
-//     sqlite3_prepare_v2(db, "SELECT * FROM SALES ORDER BY SALE_GROUP DESC LIMIT 1", 128, &result, NULL);
-//     salegroup = sqlite3_column_int(result, 2) + 1;
-//     printf("%d\n", salegroup);
-//     int i;
-//     for (i = 0; i < 100; i++){
-//         if (sale->sale_items[i] != NULL){
-//             add_product(sale->sale_items[1]);
-//         }
-//     }
+//     sqlite3_prepare_v2(db, "SELECT * FROM SALES ORDER BY SALE_GROUP DESC LIMIT 1;", 128, &result, NULL);
+//     salegroup = sqlite3_column_int(result, 1) + 1;
+//     sqlite3_prepare_v2(db, "SELECT * FROM PAYMENTS ORDER BY SALE_GROUP DESC LIMIT 1;", 128, &result, NULL);
+//     paymentid = sqlite3_column_int(result, 0) + 1;
+//     //printf("%d with a payment id of %d\n", salegroup, paymentid);
+//     char *testsql = sqlite3_mprintf("INSERT INTO SALES (SALE_GROUP, SALE_ITEM_ID, SALE_PAYMENT_ID) VALUES (%d, %d, %d);", sell->sale_group, 420, paymentid);  
+//     //printf("THIS IS A TEST : %s\n", testsql); 
+//     rc = sqlite3_exec(db, testsql, callback, 0, &err);
 //     sqlite3_close(db);
 // }
-
-// Adds a sell (singular sale)
-void add_sell(Sell *sell){
+void add_sell_from_id(SellFromID *sell){
     sqlite3 *db;
     int rc;
     int salegroup, paymentid;
     rc = sqlite3_open("salesc.db", &db);
     char *err = 0;
-    add_payment(sell->sale_payment); // Adds the payment
-    sqlite3_stmt *result;
-    sqlite3_prepare_v2(db, "SELECT * FROM SALES ORDER BY SALE_GROUP DESC LIMIT 1;", 128, &result, NULL);
-    salegroup = sqlite3_column_int(result, 1) + 1;
-    sqlite3_prepare_v2(db, "SELECT * FROM PAYMENTS ORDER BY SALE_GROUP DESC LIMIT 1;", 128, &result, NULL);
-    paymentid = sqlite3_column_int(result, 0) + 1;
-    //printf("%d with a payment id of %d\n", salegroup, paymentid);
-    char *testsql = sqlite3_mprintf("INSERT INTO SALES (SALE_GROUP, SALE_ITEM_ID, SALE_PAYMENT_ID) VALUES (%d, %d, %d);", sell->sale_group, 420, paymentid);  
-    //printf("THIS IS A TEST : %s\n", testsql); 
+    char *testsql = sqlite3_mprintf("INSERT INTO SALES (SALE_GROUP, SALE_ITEM_ID, SALE_PAYMENT_ID) VALUES (%d, %d, %d);", sell->sale_group, sell->product_id, sell->payment_id);  
     rc = sqlite3_exec(db, testsql, callback, 0, &err);
     sqlite3_close(db);
 }
@@ -177,6 +202,7 @@ Product *search_product(int id){
     rc = sqlite3_open("salesc.db", &db);
     sqlite3_stmt *result;
     char *err = 0;
+    //printf("SQL : SELECT * FROM PRODUCTS WHERE PRODUCT_ID = %d;\n", id);
     char *search = sqlite3_mprintf("SELECT * FROM PRODUCTS WHERE PRODUCT_ID = %d;", id);
     sqlite3_prepare_v2(db, search, 128, &result, NULL);
     if ((rc = sqlite3_step(result)) == SQLITE_ROW){
@@ -187,6 +213,26 @@ Product *search_product(int id){
     else {
         temp = new_product(sqlite3_column_int(result, 0), "DOESNT_EXIST", sqlite3_column_double(result, 2));
     }
+    sqlite3_reset(result);
+    sqlite3_close(db);
+    return temp;
+}
+
+int recent_payment_id(){
+    int temp;
+    sqlite3 *db;
+    int rc;
+    int salegroup, paymentid;
+    rc = sqlite3_open("salesc.db", &db);
+    sqlite3_stmt *result;
+    char *err = 0;
+    char *search = sqlite3_mprintf("SELECT PAYMENT_ID FROM PAYMENTS ORDER BY PAYMENT_ID DESC LIMIT 1");
+    sqlite3_prepare_v2(db, search, 128, &result, NULL);
+    if ((rc = sqlite3_step(result)) == SQLITE_ROW){
+        temp = sqlite3_column_int(result, 0);
+    }
+    printf("THE LAST PAYMENT VALUE IS %d\n", temp);
+    sqlite3_reset(result);
     sqlite3_close(db);
     return temp;
 }
@@ -208,6 +254,8 @@ int new_sale_group(){
     }
     res += 1;
     printf("NEWEST SALE GROUP : %d\n", res);
+    sqlite3_reset(result);
+    sqlite3_close(db);
     return res;
 }
 char *price_string_concat(float price, char *string){

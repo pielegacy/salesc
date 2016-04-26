@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
     Sell *testsale = new_sell(30, testproduct, testpaytype, 100.0);
     printf("Sales.c Command Line Client\n");
     printf("Development Build 0.2\n");
-    db_create();
+    db_create(1);
     //add_payment(testpay);
     //add_sell(testsale);
     //console_readproductnames();

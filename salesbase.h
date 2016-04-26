@@ -16,7 +16,7 @@ typedef enum {CASH, DEBIT, CREDIT, CHEQUE, OTHER} PaymentType;
 // A payment is a monetary gain
 typedef struct Payments{
     int payment_id;
-    PaymentType payment_type;
+    int payment_type;
     float payment_amount;
 } Payment;
 
@@ -33,17 +33,25 @@ typedef struct Sells{
     Product *sale_item;
     Payment *sale_payment;
 } Sell;
+// Most likely the final form of a sale class
+typedef struct SellFromIDs{
+    int sale_group;
+    int product_id;
+    int payment_id;
+} SellFromID;
 // Add a new product
 Product *new_product(int id, char name[120], float cost);
 // Add a new sale [NOT WORKING]
 Sale *new_sale(int id, Product **items, PaymentType paytype, float received);
 // Adds a sell (Sales prototype)
 Sell *new_sell(int group, Product *product, PaymentType paytype, float received);
+// Adds a sell using IDs
+SellFromID *new_sell_from_id(int group, int product, int payment);
 // Add a new Payment
-Payment *new_payment(int id, PaymentType paytype, float received);
+Payment *new_payment(int id, int paytype, float received);
 // SQL Callback (Taken from http://www.tutorialspoint.com/sqlite/sqlite_c_cpp.htm)
 // Initialize DB
-void db_create();
+void db_create(int autoinc);
 // Shortcut command for inserting into database
 void db_insert();
 
@@ -59,11 +67,15 @@ void add_payment(Payment *payment);
 void add_sale(Sale *sale);
 // Add sell to Db
 void add_sell(Sell *sell);
+// Add sell using ID
+void add_sell_from_id(SellFromID *sell);
 // Returns pointer to Product From DB based on ID
 Product *search_product(int id);
 // Find new sale_group
 int new_sale_group();
 // Display price - string values
 char *price_string_concat(float price, char *string);
+// Returns most recent payment ID
+int recent_payment_id();
 
 #endif
