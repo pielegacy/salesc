@@ -6,6 +6,7 @@
 typedef struct searchsubmit{
     GObject *input;
     GObject *output;
+    GObject *window;
     GtkBuilder *builder;
     int count;
     int values[100];

@@ -17,16 +17,38 @@ static void show_price(GtkWidget *widget, SearchSubmitPair *pair);
 static void clear_payment_field(GtkWidget *widget, SearchSubmitPair *pair);
 static void clear_window(GtkWidget *widget, GtkWidget *window);
 static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair);
+static void new_sale_window(GtkWidget *widget, GtkBuilder *builder);
 
 int salecount = 0;
 int main(int argc, char *argv[]){
     GtkBuilder *builder;
     gtk_init(&argc, &argv);
-    GObject *window;
+    GObject *menu_window;
+    GObject *new_sale;
+    // I <3 James Qu      
+    builder = gtk_builder_new();
+    gtk_builder_add_from_file(builder, "ui/menu.ui", NULL);
+    menu_window = gtk_builder_get_object(builder, "menuwindow");    
+    new_sale = gtk_builder_get_object(builder, "new_sale");
+    
+    g_signal_connect(new_sale, "clicked", G_CALLBACK(new_sale_window), builder);
+    
+    new_sale_group();
+    gtk_main();
+
+    return 0;
+}
+static void clear_window(GtkWidget *widget, GtkWidget *window){
+    gtk_window_close(GTK_WINDOW(window));
+}
+static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
+    GtkBuilder *builder;
+    GObject *sale_window;
     GObject *product_search;
     GObject *sale_list;
     //GObject *submit_button;
     GObject *process_button;
+    GObject *new_sale;
     // Price inputs
     GObject *payment_cash;
     GObject *payment_debit;
@@ -38,8 +60,8 @@ int main(int argc, char *argv[]){
     builder = gtk_builder_new();
     db_create(1);
     gtk_builder_add_from_file(builder, "ui/main.ui", NULL);
-    window = gtk_builder_get_object(builder, "mainwindow");
-    g_signal_connect (window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    sale_window = gtk_builder_get_object(builder, "mainwindow");
+    //g_signal_connect (sale_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     
     product_search = gtk_builder_get_object(builder, "product_entry");
     //submit_button = gtk_builder_get_object(builder, "submit_button");
@@ -51,16 +73,19 @@ int main(int argc, char *argv[]){
     payment_credit = gtk_builder_get_object(builder, "payment_credit");
     payment_cheque = gtk_builder_get_object(builder, "payment_cheque");
     
-    SearchSubmitPair *searchtolist = malloc(sizeof(SearchSubmitPair));
+    new_sale = gtk_builder_get_object(builder, "new_sale");
+    
+    SearchSubmitPair *searchtolist = malloc(sizeof(SearchSubmitPair) + 1);
     searchtolist->input = product_search;
     searchtolist->output = sale_list;
     searchtolist->builder = builder;
     searchtolist->count = 0;
+    searchtolist->window = sale_window;
     memcpy(searchtolist->values, val, sizeof(val) + 1);
     
     //_signal_connect(submit_button, "clicked", G_CALLBACK(add_sale_list), searchtolist);
     g_signal_connect(product_search, "activate", G_CALLBACK(add_sale_list), searchtolist);
-    g_signal_connect(process_button, "clicked", G_CALLBACK(clear_window), window);
+    g_signal_connect(process_button, "clicked", G_CALLBACK(clear_window), sale_window);
     g_signal_connect(payment_cash, "activate", G_CALLBACK(total_sale_list), searchtolist);
     g_signal_connect(payment_cash, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
     g_signal_connect(payment_debit, "activate", G_CALLBACK(total_sale_list), searchtolist);
@@ -70,14 +95,8 @@ int main(int argc, char *argv[]){
     g_signal_connect(payment_cheque, "activate", G_CALLBACK(total_sale_list), searchtolist);
     g_signal_connect(payment_cheque, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
     
+    
     gtk_widget_show_all(GTK_WIDGET(sale_list));
-    new_sale_group();
-    gtk_main();
-
-    return 0;
-}
-static void clear_window(GtkWidget *widget, GtkWidget *window){
-    gtk_window_close(GTK_WINDOW(window));
 }
 // Adds a product to the sale list
 static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
@@ -171,4 +190,5 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
             break;
         }
     }
+    gtk_window_close(GTK_WINDOW(pair->window));
 }
