@@ -30,6 +30,14 @@ Product *new_product(int id, char name[120], float cost){
     temp->product_discount = 0.00;
     return temp;
 }
+Product *new_product_v2(int id, char *name, float cost){
+    Product *temp = malloc(sizeof(Product));
+    temp->product_id = id;
+    strcpy(temp->product_name, name);
+    temp->product_cost = cost;
+    temp->product_discount = 0.00;
+    return temp;
+}
 // Sale *new_sale(int id, Product **items, PaymentType paytype, float received){
 //     Sale *temp = malloc(sizeof(Sale));
 //     temp->sale_id = id;

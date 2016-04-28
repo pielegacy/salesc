@@ -17,7 +17,9 @@ static void show_price(GtkWidget *widget, SearchSubmitPair *pair);
 static void clear_payment_field(GtkWidget *widget, SearchSubmitPair *pair);
 static void clear_window(GtkWidget *widget, GtkWidget *window);
 static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair);
+// Window methods
 static void new_sale_window(GtkWidget *widget, GtkBuilder *builder);
+static void new_product_window(GtkWidget *widget, GtkBuilder *builder);
 
 int salecount = 0;
 int main(int argc, char *argv[]){
@@ -25,14 +27,17 @@ int main(int argc, char *argv[]){
     gtk_init(&argc, &argv);
     GObject *menu_window;
     GObject *new_sale;
+    GObject *new_product;
     // I <3 James Qu      
     builder = gtk_builder_new();
     gtk_builder_add_from_file(builder, "ui/menu.ui", NULL);
-    menu_window = gtk_builder_get_object(builder, "menuwindow");    
+    menu_window = gtk_builder_get_object(builder, "mainwindow");    
     new_sale = gtk_builder_get_object(builder, "new_sale");
+    new_product = gtk_builder_get_object(builder, "new_product");
     
     g_signal_connect(new_sale, "clicked", G_CALLBACK(new_sale_window), builder);
-    gtk_window_fullscreen(GTK_WINDOW(menu_window));
+    g_signal_connect(new_product, "clicked", G_CALLBACK(new_product_window), builder);
+    //gtk_window_fullscreen(GTK_WINDOW(menu_window));
     new_sale_group();
     gtk_main();
 
@@ -95,7 +100,7 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     g_signal_connect(payment_cheque, "activate", G_CALLBACK(total_sale_list), searchtolist);
     g_signal_connect(payment_cheque, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
     
-    
+    //gtk_window_fullscreen(GTK_WINDOW(sale_window));
     gtk_widget_show_all(GTK_WIDGET(sale_list));
     gtk_widget_grab_focus(GTK_WIDGET(product_search));
 }
@@ -192,4 +197,44 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
         }
     }
     gtk_window_close(GTK_WINDOW(pair->window));
+}
+
+static void update_products(GtkWidget *widget, ProductFieldSet *fields);
+
+static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
+    GtkBuilder *builder;
+    GObject *product_window;
+    GObject *product_process;
+    
+    ProductFieldSet *fields = malloc(sizeof(ProductFieldSet) + 1);
+    GObject *product_id;
+    GObject *product_name;
+    GObject *product_cost;
+    GObject *product_discount;
+    
+    builder = gtk_builder_new();
+    db_create(1);
+    gtk_builder_add_from_file(builder, "ui/products.ui", NULL);
+    product_window = gtk_builder_get_object(builder, "mainwindow");
+    product_process = gtk_builder_get_object(builder, "product_process");
+    
+    product_id = gtk_builder_get_object(builder, "product_id");
+    product_name = gtk_builder_get_object(builder, "product_name");
+    product_cost = gtk_builder_get_object(builder, "product_cost");
+    product_discount = gtk_builder_get_object(builder, "product_discount");
+    fields->product_id = product_id;
+    fields->product_name = product_name;
+    fields->product_cost = product_cost;
+    fields->product_discount = product_discount;
+    
+    g_signal_connect(product_process, "clicked", G_CALLBACK(update_products), fields);    
+}
+static void update_products(GtkWidget *widget, ProductFieldSet *fields){
+    int success = process_product_fields(fields);
+    if (success == 0){
+        printf("FUCKING FAIL");
+    }
+    else {
+        printf("Success");
+    }
 }
