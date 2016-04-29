@@ -34,8 +34,26 @@ int process_product_fields(ProductFieldSet *fields){
     char *name_final;
     strcpy(name_final, name_temp);
     float cost = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_cost)));
-    //float discount = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_discount)));
-    temp = new_product_v2(id, name_final, cost);
-    add_product(temp);
+    float discount = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_discount)));
+    temp = search_product(id);
+    if (strcmp(temp->product_name, "DOESNT_EXIST") != 0){ // Exists
+        temp = new_product_v2(id, name_final, cost);
+        temp->product_discount = discount;
+        update_product(temp);
+    }
+    else {
+        temp = new_product_v2(id, name_final, cost);
+        add_product(temp);
+    }
     return 0;
+}
+void fill_product_fields(ProductFieldSet *fields){
+    int id = atoi(gtk_entry_get_text(GTK_ENTRY(fields->product_id)));
+    Product *temp = malloc(sizeof(Product) + 1);
+    temp = search_product(id);
+    if (strcmp(temp->product_name, "DOESNT_EXIST") != 0){ // Exists
+        char *placeholder = malloc(sizeof("0000000000.00") + 1);
+        sprintf(placeholder, "%0.2f", temp->product_cost);
+        gtk_entry_set_text(GTK_ENTRY(fields->product_cost), placeholder);
+    }
 }

@@ -205,6 +205,7 @@ static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GtkBuilder *builder;
     GObject *product_window;
     GObject *product_process;
+    GObject *product_search;
     
     ProductFieldSet *fields = malloc(sizeof(ProductFieldSet) + 1);
     GObject *product_id;
@@ -217,6 +218,7 @@ static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     gtk_builder_add_from_file(builder, "ui/products.ui", NULL);
     product_window = gtk_builder_get_object(builder, "mainwindow");
     product_process = gtk_builder_get_object(builder, "product_process");
+    product_search = gtk_builder_get_object(builder, "product_search");
     
     product_id = gtk_builder_get_object(builder, "product_id");
     product_name = gtk_builder_get_object(builder, "product_name");
@@ -228,6 +230,7 @@ static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     fields->product_discount = product_discount;
     
     g_signal_connect(product_process, "clicked", G_CALLBACK(update_products), fields);    
+    g_signal_connect(product_search, "clicked", G_CALLBACK(fill_product_fields), fields);
 }
 static void update_products(GtkWidget *widget, ProductFieldSet *fields){
     int success = process_product_fields(fields);

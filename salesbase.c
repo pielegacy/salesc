@@ -38,6 +38,16 @@ Product *new_product_v2(int id, char *name, float cost){
     temp->product_discount = 0.00;
     return temp;
 }
+void *update_product(Product *product){
+    sqlite3 *db;
+    int rc;
+    rc = sqlite3_open("salesc.db", &db);
+    char *err = 0;
+    char *testsql = sqlite3_mprintf("UPDATE PRODUCTS SET PRODUCT_NAME='%s', PRODUCT_COST=%0.2f, PRODUCT_DISCOUNT=0.2f WHERE PRODUCT_ID=%d;", product->product_name, product->product_cost, product->product_discount, product->product_id);
+    printf("Update string : %s", testsql);
+    rc = sqlite3_exec(db, testsql, callback, 0, &err);
+    sqlite3_close(db);
+}
 // Sale *new_sale(int id, Product **items, PaymentType paytype, float received){
 //     Sale *temp = malloc(sizeof(Sale));
 //     temp->sale_id = id;

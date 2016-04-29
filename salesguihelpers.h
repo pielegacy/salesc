@@ -25,6 +25,7 @@ SearchSubmitPair *sale_io_pair(GObject *i, GObject *o);
 float sales_total(SearchSubmitPair *pair);
 // Used to convert a ProductFieldSet into a product in the DB
 int process_product_fields(ProductFieldSet *fields);
-
+// Fill fields with existing product
+void fill_product_fields(ProductFieldSet *fields);
 
 #endif

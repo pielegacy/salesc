@@ -43,6 +43,8 @@ typedef struct SellFromIDs{
 Product *new_product(int id, char name[120], float cost);
 // V2 Of new product
 Product *new_product_v2(int id, char *name, float cost);
+// Update product
+void *update_product(Product *product);
 // Add a new sale [NOT WORKING]
 Sale *new_sale(int id, Product **items, PaymentType paytype, float received);
 // Adds a sell (Sales prototype)
