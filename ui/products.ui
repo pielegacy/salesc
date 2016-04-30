@@ -159,7 +159,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="product_process">
-                        <property name="label" translatable="yes">Add Product</property>
+                        <property name="label" translatable="yes">Submit</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

@@ -11,6 +11,7 @@
 //     const char* output = gtk_entry_get_text(GTK_ENTRY(widget));
 //     printf("The text is : %s\n", output);
 // }
+const int auto_increment = 0;
 static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair);
 static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair);
 static void show_price(GtkWidget *widget, SearchSubmitPair *pair);
@@ -28,6 +29,7 @@ int main(int argc, char *argv[]){
     GObject *menu_window;
     GObject *new_sale;
     GObject *new_product;
+    db_create(auto_increment);
     // I <3 James Qu      
     builder = gtk_builder_new();
     gtk_builder_add_from_file(builder, "ui/menu.ui", NULL);
@@ -200,6 +202,8 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
 }
 
 static void update_products(GtkWidget *widget, ProductFieldSet *fields);
+static void pull_product(GtkWidget *widget, ProductFieldSet *fields);
+static void updatefields(GtkWidget *widget, ProductFieldSet *fields);
 
 static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GtkBuilder *builder;
@@ -214,7 +218,7 @@ static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GObject *product_discount;
     
     builder = gtk_builder_new();
-    db_create(1);
+    db_create(0);
     gtk_builder_add_from_file(builder, "ui/products.ui", NULL);
     product_window = gtk_builder_get_object(builder, "mainwindow");
     product_process = gtk_builder_get_object(builder, "product_process");
@@ -224,20 +228,37 @@ static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     product_name = gtk_builder_get_object(builder, "product_name");
     product_cost = gtk_builder_get_object(builder, "product_cost");
     product_discount = gtk_builder_get_object(builder, "product_discount");
+    fields->builder = builder;
     fields->product_id = product_id;
     fields->product_name = product_name;
     fields->product_cost = product_cost;
     fields->product_discount = product_discount;
     
     g_signal_connect(product_process, "clicked", G_CALLBACK(update_products), fields);    
-    g_signal_connect(product_search, "clicked", G_CALLBACK(fill_product_fields), fields);
+    g_signal_connect(product_search, "clicked", G_CALLBACK(pull_product), fields);
+    g_signal_connect(product_id, "activate", G_CALLBACK(pull_product), fields);
+    // g_signal_connect(product_id, "changed", G_CALLBACK(updatefields), fields);
 }
 static void update_products(GtkWidget *widget, ProductFieldSet *fields){
-    int success = process_product_fields(fields);
-    if (success == 0){
-        printf("FUCKING FAIL");
+    Product *passthrough = malloc(sizeof(Product) + 1);
+    int id = atoi(gtk_entry_get_text(GTK_ENTRY(fields->product_id)));
+    char *name_final = malloc(sizeof(fields->product_name));
+    strcpy(name_final, gtk_entry_get_text(GTK_ENTRY(fields->product_name)));
+    float cost = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_cost)));
+    float discount = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_discount)));
+    passthrough = new_product_v2(id, name_final, cost);
+    passthrough->product_discount = discount;
+    int success = process_product_fields(passthrough, auto_increment);
+    if (success == 1){
+        empty_fields(fields);
     }
-    else {
-        printf("Success");
-    }
+}
+// static void updatefields(GtkWidget *widget, ProductFieldSet *fields){
+//     fields->product_id = gtk_builder_get_object(fields->builder, "product_id");
+//     fields->product_name = gtk_builder_get_object(fields->builder, "product_name");
+//     fields->product_cost = gtk_builder_get_object(fields->builder, "product_cost");
+//     fields->product_discount = gtk_builder_get_object(fields->builder, "product_discount");
+// }
+static void pull_product(GtkWidget *widget, ProductFieldSet *fields){
+    fill_product_fields(fields);
 }

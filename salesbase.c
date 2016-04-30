@@ -43,8 +43,7 @@ void *update_product(Product *product){
     int rc;
     rc = sqlite3_open("salesc.db", &db);
     char *err = 0;
-    char *testsql = sqlite3_mprintf("UPDATE PRODUCTS SET PRODUCT_NAME='%s', PRODUCT_COST=%0.2f, PRODUCT_DISCOUNT=0.2f WHERE PRODUCT_ID=%d;", product->product_name, product->product_cost, product->product_discount, product->product_id);
-    printf("Update string : %s", testsql);
+    char *testsql = sqlite3_mprintf("UPDATE PRODUCTS SET PRODUCT_NAME='%s', PRODUCT_COST=%0.2f, PRODUCT_DISCOUNT=%0.2f WHERE PRODUCT_ID=%d;", product->product_name, product->product_cost, product->product_discount, product->product_id);
     rc = sqlite3_exec(db, testsql, callback, 0, &err);
     sqlite3_close(db);
 }
@@ -80,7 +79,7 @@ Payment *new_payment(int id, int paytype, float received){
     return temp;
 }
 // Increment = 1 (doesn't auto increment)
-void db_create(int autoinc){
+int db_create(int autoinc){
     if (access("salesc.db", F_OK) == -1){
         sqlite3 *db;
         int rc;
@@ -119,19 +118,20 @@ void db_create(int autoinc){
                 "PRODUCT_DISCOUNT REAL);";
                 
             char *salessql = "CREATE TABLE SALES(" \
-            "SALE_ID INTEGER PRIMARY KEY," \
+            "SALE_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
             "SALE_GROUP INTEGER NOT NULL," \
             "SALE_ITEM_ID INTEGER NOT NULL," \
             "SALE_PAYMENT_ID INTEGER NOT NULL);";
             
             char *paymentssql = "CREATE TABLE PAYMENTS(" \
-            "PAYMENT_ID INTEGER PRIMARY KEY," \
+            "PAYMENT_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
             "PAYMENT_TYPE INTEGER NOT NULL," \
             "PAYMENT_AMOUNT REAL NOT NULL);";
             rc = sqlite3_exec(db, productsql, callback, 0, &errMessage);
             rc = sqlite3_exec(db, salessql, callback, 0, &errMessage);
             rc = sqlite3_exec(db, paymentssql, callback, 0, &errMessage);   
         }   
+        return autoinc;
         sqlite3_close(db);
     }
 }
@@ -160,12 +160,15 @@ void test_value(){
     sqlite3_close(db);
 }
 // Adds a product to the database
-void add_product(Product *product){
+void add_product(Product *product, int dbtype){
     sqlite3 *db;
     int rc;
     rc = sqlite3_open("salesc.db", &db);
     char *err = 0;
     char *testsql = sqlite3_mprintf("INSERT INTO PRODUCTS (PRODUCT_NAME, PRODUCT_COST) VALUES (\"%s\", %0.2f);", product->product_name, product->product_cost);
+    if (dbtype != 1){
+        testsql = sqlite3_mprintf("INSERT INTO PRODUCTS (PRODUCT_ID,PRODUCT_NAME, PRODUCT_COST) VALUES (%d,\"%s\", %0.2f);",product->product_id, product->product_name, product->product_cost);
+    }
     rc = sqlite3_exec(db, testsql, callback, 0, &err);
     sqlite3_close(db);
 }

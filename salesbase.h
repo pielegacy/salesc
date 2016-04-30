@@ -55,7 +55,7 @@ SellFromID *new_sell_from_id(int group, int product, int payment);
 Payment *new_payment(int id, int paytype, float received);
 // SQL Callback (Taken from http://www.tutorialspoint.com/sqlite/sqlite_c_cpp.htm)
 // Initialize DB
-void db_create(int autoinc);
+int db_create(int autoinc);
 // Shortcut command for inserting into database
 void db_insert();
 
@@ -64,7 +64,7 @@ void console_readproductnames();
 // Add Test Value
 void test_value();
 // Add Product to Db
-void add_product(Product *product);
+void add_product(Product *product, int dbtype);
 // Add payment to Db
 void add_payment(Payment *payment);
 // Add sale to Db

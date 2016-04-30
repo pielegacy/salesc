@@ -27,26 +27,20 @@ float sales_total(SearchSubmitPair *pair){
     }
     return total;
 }	
-int process_product_fields(ProductFieldSet *fields){
-    Product *temp = malloc(sizeof(Product) + 1);
-    int id = atoi(gtk_entry_get_text(GTK_ENTRY(fields->product_id)));
-    const char *name_temp = gtk_entry_get_text(GTK_ENTRY(fields->product_name));
-    char *name_final;
-    strcpy(name_final, name_temp);
-    float cost = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_cost)));
-    float discount = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_discount)));
-    temp = search_product(id);
-    if (strcmp(temp->product_name, "DOESNT_EXIST") != 0){ // Exists
-        temp = new_product_v2(id, name_final, cost);
-        temp->product_discount = discount;
-        update_product(temp);
+int process_product_fields(Product *product, int autoinc){
+    Product *checker = malloc(sizeof(Product) + 1);
+    checker = search_product(product->product_id);
+    if (strcmp(checker->product_name, "DOESNT_EXIST") != 0){ // Exists
+        update_product(product);
+        return 1;
     }
     else {
-        temp = new_product_v2(id, name_final, cost);
-        add_product(temp);
+        add_product(product, 0);
+        return 1;
     }
     return 0;
 }
+// BIND TO LOCAL GTK EVENT! NO GTK WIDGET IS BAD
 void fill_product_fields(ProductFieldSet *fields){
     int id = atoi(gtk_entry_get_text(GTK_ENTRY(fields->product_id)));
     Product *temp = malloc(sizeof(Product) + 1);
@@ -55,5 +49,16 @@ void fill_product_fields(ProductFieldSet *fields){
         char *placeholder = malloc(sizeof("0000000000.00") + 1);
         sprintf(placeholder, "%0.2f", temp->product_cost);
         gtk_entry_set_text(GTK_ENTRY(fields->product_cost), placeholder);
+        gtk_entry_set_text(GTK_ENTRY(fields->product_name), temp->product_name);
+        sprintf(placeholder, "%0.2f", temp->product_discount);
+        gtk_entry_set_text(GTK_ENTRY(fields->product_discount), placeholder);
+        gtk_widget_grab_focus(GTK_WIDGET(fields->product_name));
     }
+}
+void empty_fields(ProductFieldSet *fields){
+    gtk_entry_set_text(GTK_ENTRY(fields->product_id), "");
+    gtk_entry_set_text(GTK_ENTRY(fields->product_cost), "");
+    gtk_entry_set_text(GTK_ENTRY(fields->product_name), "");
+    gtk_entry_set_text(GTK_ENTRY(fields->product_discount), "");
+    gtk_widget_grab_focus(GTK_WIDGET(fields->product_id));
 }
