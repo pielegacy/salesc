@@ -24,6 +24,7 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *builder);
 static void new_product_window(GtkWidget *widget, GtkBuilder *builder);
 // Fill list of products
 void fill_product_list(GObject *list, SearchSubmitPair *fields);
+void fill_sales(GObject *sale_list);
 
 int salecount = 0;
 int main(int argc, char *argv[]){
@@ -32,6 +33,7 @@ int main(int argc, char *argv[]){
     GObject *menu_window;
     GObject *new_sale;
     GObject *new_product;
+    GObject *sale_list;
     db_create(auto_increment);
     // I <3 James Qu      
     builder = gtk_builder_new();
@@ -39,7 +41,8 @@ int main(int argc, char *argv[]){
     menu_window = gtk_builder_get_object(builder, "mainwindow");    
     new_sale = gtk_builder_get_object(builder, "new_sale");
     new_product = gtk_builder_get_object(builder, "new_product");
-    
+    sale_list = gtk_builder_get_object(builder, "sales_list");
+    fill_sales(sale_list);
     g_signal_connect(new_sale, "clicked", G_CALLBACK(new_sale_window), builder);
     g_signal_connect(new_product, "clicked", G_CALLBACK(new_product_window), builder);
     //gtk_window_fullscreen(GTK_WINDOW(menu_window));
@@ -47,6 +50,29 @@ int main(int argc, char *argv[]){
     gtk_main();
 
     return 0;
+}
+void fill_sales(GObject *sale_list){
+    // sqlite3 *db;
+    // int rc;
+    // int currentsale;
+    // rc = sqlite3_open("salesc.db", &db);
+    // char *errmessage = 0;
+    // sqlite3_stmt *result;
+    // sqlite3_prepare_v2(db, "SELECT * FROM SALES", 128, &result, NULL); 
+    // while ((rc = sqlite3_step(result)) == SQLITE_ROW){
+    //     GtkWidget *sale_option;
+    //     char *label = malloc(strlen(sqlite3_column_text(result, 0)) + strlen(sqlite3_column_text(result, 1)) + strlen(sqlite3_column_text(result, 2)) + 6);
+    //     int labelid = sqlite3_column_int(result, 0);
+    //     fields->id = labelid;
+    //     sprintf(label, "%s: %s $%0.2f", sqlite3_column_text(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
+    //     const char *label_final = label;
+    //     product_option = gtk_button_new_with_label(label_final);
+    //     //printf("%d : %s for $%0.2f\n",sqlite3_column_int(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
+    //     g_signal_connect(product_option, "clicked", G_CALLBACK(add_from_list), fields);
+    //     gtk_list_box_insert(GTK_LIST_BOX(list), product_option, 100);
+    // }
+    // gtk_widget_show_all(GTK_WIDGET(list));
+    // sqlite3_close(db);
 }
 static void clear_window(GtkWidget *widget, GtkWidget *window){
     gtk_window_close(GTK_WINDOW(window));
