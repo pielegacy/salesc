@@ -81,5 +81,7 @@ int new_sale_group();
 char *price_string_concat(float price, char *string);
 // Returns most recent payment ID
 int recent_payment_id();
+// Get paymount amount by id
+float payment_amount_retrieve(int id);
 
 #endif

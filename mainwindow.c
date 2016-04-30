@@ -52,27 +52,34 @@ int main(int argc, char *argv[]){
     return 0;
 }
 void fill_sales(GObject *sale_list){
-    // sqlite3 *db;
-    // int rc;
-    // int currentsale;
-    // rc = sqlite3_open("salesc.db", &db);
-    // char *errmessage = 0;
-    // sqlite3_stmt *result;
-    // sqlite3_prepare_v2(db, "SELECT * FROM SALES", 128, &result, NULL); 
-    // while ((rc = sqlite3_step(result)) == SQLITE_ROW){
-    //     GtkWidget *sale_option;
-    //     char *label = malloc(strlen(sqlite3_column_text(result, 0)) + strlen(sqlite3_column_text(result, 1)) + strlen(sqlite3_column_text(result, 2)) + 6);
-    //     int labelid = sqlite3_column_int(result, 0);
-    //     fields->id = labelid;
-    //     sprintf(label, "%s: %s $%0.2f", sqlite3_column_text(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
-    //     const char *label_final = label;
-    //     product_option = gtk_button_new_with_label(label_final);
-    //     //printf("%d : %s for $%0.2f\n",sqlite3_column_int(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
-    //     g_signal_connect(product_option, "clicked", G_CALLBACK(add_from_list), fields);
-    //     gtk_list_box_insert(GTK_LIST_BOX(list), product_option, 100);
-    // }
-    // gtk_widget_show_all(GTK_WIDGET(list));
-    // sqlite3_close(db);
+    sqlite3 *db;
+    int rc;
+    int currentsale = 0;
+    int currentsalecount = 0;
+    char *currentitemlist = malloc(sizeof("") + 1);
+    rc = sqlite3_open("salesc.db", &db);
+    char *errmessage = 0;
+    sqlite3_stmt *result;
+    sqlite3_prepare_v2(db, "SELECT * FROM SALES", 128, &result, NULL); 
+    while ((rc = sqlite3_step(result)) == SQLITE_ROW){
+        if (currentsale != sqlite3_column_int(result, 1)){
+            GtkWidget *sale_option;
+            float payment = payment_amount_retrieve(sqlite3_column_int(result,3));
+            char *label_final = malloc(strlen(sqlite3_column_text(result,1)) + sizeof(currentsalecount) + sizeof(payment) + (20 * sizeof(char)));
+            sprintf(label_final, "Sale #%s : %d item/s for $%0.2f",sqlite3_column_text(result, 1), currentsalecount, payment);
+            //const 
+            GtkWidget *product_option = gtk_button_new_with_label(label_final);
+            gtk_list_box_insert(GTK_LIST_BOX(sale_list), product_option, 100);
+            currentsale = sqlite3_column_int(result, 1);
+            currentsalecount = 0;
+        }
+        else {
+            currentsalecount++;
+        }
+        
+    }
+    gtk_widget_show_all(GTK_WIDGET(sale_list));
+    sqlite3_close(db);
 }
 static void clear_window(GtkWidget *widget, GtkWidget *window){
     gtk_window_close(GTK_WINDOW(window));
@@ -242,7 +249,7 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
     const gchar *widgettype = gtk_widget_get_name(paywidget);
     //printf("TYPE IS %s", widgettype);
     printf("Processing payment...\n");
-    Payment *temp;
+    Payment *temp = malloc(sizeof(Payment) + 1);
     int pay_type;
     float paid = atof(gtk_entry_get_text(GTK_ENTRY(paywidget)));
     if (strcmp("payment_cash", widgettype) == 0){
