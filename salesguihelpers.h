@@ -10,6 +10,7 @@ typedef struct searchsubmit{
     GtkBuilder *builder;
     int count;
     int values[100];
+    int id;
 } SearchSubmitPair;
 
 typedef struct productSubmit{
@@ -20,7 +21,6 @@ typedef struct productSubmit{
     GObject *product_cost;
     GObject *product_discount;
 } ProductFieldSet;
-
 // Used for passing multiple fields to a callback function in GTK
 SearchSubmitPair *sale_io_pair(GObject *i, GObject *o);
 // Used to return float of total values

@@ -18,9 +18,12 @@ static void show_price(GtkWidget *widget, SearchSubmitPair *pair);
 static void clear_payment_field(GtkWidget *widget, SearchSubmitPair *pair);
 static void clear_window(GtkWidget *widget, GtkWidget *window);
 static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair);
+static void add_from_list(GtkWidget *widget, SearchSubmitPair *fields);
 // Window methods
 static void new_sale_window(GtkWidget *widget, GtkBuilder *builder);
 static void new_product_window(GtkWidget *widget, GtkBuilder *builder);
+// Fill list of products
+void fill_product_list(GObject *list, SearchSubmitPair *fields);
 
 int salecount = 0;
 int main(int argc, char *argv[]){
@@ -53,6 +56,7 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GObject *sale_window;
     GObject *product_search;
     GObject *sale_list;
+    GObject *product_list;
     //GObject *submit_button;
     GObject *process_button;
     GObject *new_sale;
@@ -62,6 +66,8 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GObject *payment_credit;
     GObject *payment_cheque;
     
+    //ListSubmitSet *listsubmit = malloc(sizeof(ListSubmitSet) + 1);
+    
     int val[100];
     // I <3 James Qu      
     builder = gtk_builder_new();
@@ -69,12 +75,11 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     gtk_builder_add_from_file(builder, "ui/main.ui", NULL);
     sale_window = gtk_builder_get_object(builder, "mainwindow");
     //g_signal_connect (sale_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-    
+
     product_search = gtk_builder_get_object(builder, "product_entry");
     //submit_button = gtk_builder_get_object(builder, "submit_button");
     process_button = gtk_builder_get_object(builder, "payment_process");
     sale_list = gtk_builder_get_object(builder, "sale_products");
-    
     payment_cash = gtk_builder_get_object(builder, "payment_cash");
     payment_debit = gtk_builder_get_object(builder, "payment_debit");
     payment_credit = gtk_builder_get_object(builder, "payment_credit");
@@ -90,6 +95,8 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     searchtolist->window = sale_window;
     memcpy(searchtolist->values, val, sizeof(val) + 1);
     
+    product_list = gtk_builder_get_object(builder, "product_list");
+    fill_product_list(product_list, searchtolist);
     //_signal_connect(submit_button, "clicked", G_CALLBACK(add_sale_list), searchtolist);
     g_signal_connect(product_search, "activate", G_CALLBACK(add_sale_list), searchtolist);
     g_signal_connect(process_button, "clicked", G_CALLBACK(clear_window), sale_window);
@@ -105,6 +112,43 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     //gtk_window_fullscreen(GTK_WINDOW(sale_window));
     gtk_widget_show_all(GTK_WIDGET(sale_list));
     gtk_widget_grab_focus(GTK_WIDGET(product_search));
+}
+// Adds a product from the product list in the bottom
+static void add_from_list(GtkWidget *widget, SearchSubmitPair *fields){
+    // const char *buttonlabel = 
+    //char *buttontext;
+    //strcpy(buttontext, gtk_button_get_label(GTK_BUTTON(widget)));
+    //char *temp_id = strtok(gtk_button_get_label(GTK_BUTTON(widget)), ":");
+    //char *temp_id = "0.01";
+    //printf("THE ID IS %d", temp_id);
+    gtk_widget_grab_focus(GTK_WIDGET(fields->input));
+    const char *text = gtk_button_get_label(GTK_BUTTON(widget));
+    char *text_normal = malloc(strlen(text) + 1);
+    strcpy(text_normal, text);
+    char *output = strtok(text_normal, ":");
+    gtk_entry_set_text(GTK_ENTRY(fields->input), output);
+}
+void fill_product_list(GObject *list, SearchSubmitPair *fields){
+    sqlite3 *db;
+    int rc;
+    rc = sqlite3_open("salesc.db", &db);
+    char *errmessage = 0;
+    sqlite3_stmt *result;
+    sqlite3_prepare_v2(db, "SELECT * FROM PRODUCTS", 128, &result, NULL); 
+    while ((rc = sqlite3_step(result)) == SQLITE_ROW){
+        GtkWidget *product_option;
+        char *label = malloc(strlen(sqlite3_column_text(result, 0)) + strlen(sqlite3_column_text(result, 1)) + strlen(sqlite3_column_text(result, 2)) + 6);
+        int labelid = sqlite3_column_int(result, 0);
+        fields->id = labelid;
+        sprintf(label, "%s: %s $%0.2f", sqlite3_column_text(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
+        const char *label_final = label;
+        product_option = gtk_button_new_with_label(label_final);
+        //printf("%d : %s for $%0.2f\n",sqlite3_column_int(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
+        g_signal_connect(product_option, "clicked", G_CALLBACK(add_from_list), fields);
+        gtk_list_box_insert(GTK_LIST_BOX(list), product_option, 100);
+    }
+    gtk_widget_show_all(GTK_WIDGET(list));
+    sqlite3_close(db);
 }
 // Adds a product to the sale list
 static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
@@ -131,6 +175,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     }
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");
 }
+
 
 static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     int i;
