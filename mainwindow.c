@@ -22,6 +22,7 @@ static void add_from_list(GtkWidget *widget, SearchSubmitPair *fields);
 // Window methods
 static void new_sale_window(GtkWidget *widget, GtkBuilder *builder);
 static void new_product_window(GtkWidget *widget, GtkBuilder *builder);
+static void view_sale_window(GtkWidget *widget, gpointer sale_pointer);
 // Fill list of products
 void fill_product_list(GObject *list, SearchSubmitPair *fields);
 void fill_sales(GObject *sale_list);
@@ -54,24 +55,25 @@ int main(int argc, char *argv[]){
 void fill_sales(GObject *sale_list){
     sqlite3 *db;
     int rc;
-    int currentsale = 0;
+    int currentsale = 1;
     int currentsalecount = 0;
     char *currentitemlist = malloc(sizeof("") + 1);
     rc = sqlite3_open("salesc.db", &db);
     char *errmessage = 0;
     sqlite3_stmt *result;
-    sqlite3_prepare_v2(db, "SELECT * FROM SALES", 128, &result, NULL); 
+    sqlite3_prepare_v2(db, "SELECT * FROM SALES;", 128, &result, NULL); 
     while ((rc = sqlite3_step(result)) == SQLITE_ROW){
         if (currentsale != sqlite3_column_int(result, 1)){
             GtkWidget *sale_option;
             float payment = payment_amount_retrieve(sqlite3_column_int(result,3));
             char *label_final = malloc(strlen(sqlite3_column_text(result,1)) + sizeof(currentsalecount) + sizeof(payment) + (20 * sizeof(char)));
-            sprintf(label_final, "Sale #%s : %d item/s for $%0.2f",sqlite3_column_text(result, 1), currentsalecount, payment);
+            sprintf(label_final, "%d : %d item/s for $%0.2f",currentsale, currentsalecount, payment);
             //const 
             GtkWidget *product_option = gtk_button_new_with_label(label_final);
+            g_signal_connect(product_option, "clicked", G_CALLBACK(view_sale_window), NULL);
             gtk_list_box_insert(GTK_LIST_BOX(sale_list), product_option, 100);
             currentsale = sqlite3_column_int(result, 1);
-            currentsalecount = 0;
+            currentsalecount = 1;
         }
         else {
             currentsalecount++;
@@ -83,6 +85,13 @@ void fill_sales(GObject *sale_list){
 }
 static void clear_window(GtkWidget *widget, GtkWidget *window){
     gtk_window_close(GTK_WINDOW(window));
+}
+static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
+    const char *text = gtk_button_get_label(GTK_BUTTON(widget));
+    char *text_normal = malloc(strlen(text) + 1);
+    strcpy(text_normal, text);
+    char *output = strtok(text_normal, ":");
+    printf("%s\n", output);
 }
 static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GtkBuilder *builder;
