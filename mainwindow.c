@@ -87,11 +87,16 @@ static void clear_window(GtkWidget *widget, GtkWidget *window){
     gtk_window_close(GTK_WINDOW(window));
 }
 static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
+    GtkBuilder *builder;
+    gtk_init(&argc, &argv);
+    GObject *menu_window;
+    
     const char *text = gtk_button_get_label(GTK_BUTTON(widget));
     char *text_normal = malloc(strlen(text) + 1);
     strcpy(text_normal, text);
     char *output = strtok(text_normal, ":");
     printf("%s\n", output);
+    
 }
 static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GtkBuilder *builder;
