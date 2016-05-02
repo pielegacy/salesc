@@ -4,11 +4,14 @@
   <requires lib="gtk+" version="3.12"/>
   <object class="GtkEntryCompletion" id="entrycompletion1"/>
   <object class="GtkApplicationWindow" id="mainwindow">
+    <property name="width_request">400</property>
+    <property name="height_request">500</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">SalesC - New Sale</property>
-    <property name="default_width">800</property>
-    <property name="default_height">600</property>
+    <property name="title" translatable="yes">SalesC - Receipt View</property>
+    <property name="resizable">False</property>
+    <property name="default_width">500</property>
+    <property name="default_height">800</property>
     <child>
       <object class="GtkGrid" id="main_grid">
         <property name="visible">True</property>
@@ -60,10 +63,12 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkLabel" id="sale_receipt">
+                          <object class="GtkTextView" id="sale_receipt">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">label</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="justification">center</property>
+                            <property name="cursor_visible">False</property>
                           </object>
                         </child>
                       </object>
@@ -87,16 +92,8 @@
                 </child>
               </object>
             </child>
-            <child type="label">
-              <object class="GtkLabel" id="lable_sale">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">New Sale</property>
-                <attributes>
-                  <attribute name="style" value="oblique"/>
-                  <attribute name="scale" value="1.5"/>
-                </attributes>
-              </object>
+            <child type="label_item">
+              <placeholder/>
             </child>
           </object>
           <packing>

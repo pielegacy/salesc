@@ -23,6 +23,7 @@ static void add_from_list(GtkWidget *widget, SearchSubmitPair *fields);
 static void new_sale_window(GtkWidget *widget, GtkBuilder *builder);
 static void new_product_window(GtkWidget *widget, GtkBuilder *builder);
 static void view_sale_window(GtkWidget *widget, gpointer sale_pointer);
+static void refresh_window(GtkWidget *widget, GObject *sale_list);
 // Fill list of products
 void fill_product_list(GObject *list, SearchSubmitPair *fields);
 void fill_sales(GObject *sale_list);
@@ -44,6 +45,7 @@ int main(int argc, char *argv[]){
     new_product = gtk_builder_get_object(builder, "new_product");
     sale_list = gtk_builder_get_object(builder, "sales_list");
     fill_sales(sale_list);
+    g_signal_connect(menu_window, "activate-focus", G_CALLBACK(refresh_window), sale_list);
     g_signal_connect(new_sale, "clicked", G_CALLBACK(new_sale_window), builder);
     g_signal_connect(new_product, "clicked", G_CALLBACK(new_product_window), builder);
     //gtk_window_fullscreen(GTK_WINDOW(menu_window));
@@ -51,6 +53,9 @@ int main(int argc, char *argv[]){
     gtk_main();
 
     return 0;
+}
+static void refresh_window(GtkWidget *widget, GObject *sale_list){
+    fill_sales(sale_list);
 }
 void fill_sales(GObject *sale_list){
     sqlite3 *db;
@@ -90,6 +95,9 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
     GtkBuilder *builder;
     GObject *menu_window;
     GObject *sale_product_list;
+    GtkTextBuffer *buffer;
+    GtkTextIter start, end;
+    GtkTextIter iter;
     
     builder = gtk_builder_new();
     sqlite3 *db;
@@ -101,19 +109,40 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
     char *text_normal = malloc(strlen(text) + 1);
     strcpy(text_normal, text);
     int sale_group = atoi(strtok(text_normal, ":"));
+    float payment_amount;
     // printf("%s\n", output);
     gtk_builder_add_from_file(builder, "ui/sale_details.ui", NULL);
     menu_window = gtk_builder_get_object(builder, "mainwindow");
     sale_product_list = gtk_builder_get_object(builder, "sale_receipt");
+    
+    // Buffer Code
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sale_product_list));
+    gtk_text_buffer_get_iter_at_offset(buffer, &iter, 0);
+    gtk_text_buffer_insert(buffer, &iter, "-- Sales Receipt --\n", -1);
+    char group_string[20];
+    sprintf(group_string,"Sale #%d\n\n", sale_group);
+    gtk_text_buffer_insert(buffer, &iter, group_string, -1);
+    float total_cost = 0.0;
     char *sql_statement = sqlite3_mprintf("SELECT * FROM SALES WHERE SALE_GROUP = %d;", sale_group);
     sqlite3_prepare_v2(db, sql_statement, 128, &result, NULL); 
     while ((rc = sqlite3_step(result)) == SQLITE_ROW){
-        printf("%d\n", sqlite3_column_int(result, 2));
-        
-        gtk_label_set_text(GTK_LABEL(sale_product_list),);
-        //g_signal_connect(product_option, "clicked", G_CALLBACK(add_from_list), fields);
+        Product *temp = malloc(sizeof(Product) + 1);
+        temp = search_product(sqlite3_column_int(result, 2));
+        payment_amount = payment_amount_retrieve(sqlite3_column_int(result, 3));
+        total_cost += temp->product_cost;
+        char *product_string = malloc(sizeof(temp->product_cost) + strlen(temp->product_name) + sizeof(temp->product_id) + 20);
+        sprintf(product_string, "$%0.2f %d - %s\n", temp->product_cost, temp->product_id, temp->product_name);
+        gtk_text_buffer_insert(buffer, &iter, product_string, -1);
+        free(product_string);
+        free(temp);
     }
-    
+    float change = 0.00;
+    if (payment_amount > total_cost)
+        change = payment_amount - total_cost;
+    char *ending = malloc(sizeof(total_cost) + sizeof(payment_amount) + sizeof(char[40]) + sizeof(change) + 1); // I know the vague mallocs are bad, soz babes
+    sprintf(ending, "\nTotal : $%0.2f\nPaid : $%0.2f\nChange : $%0.2f", total_cost, payment_amount, change);
+    gtk_text_buffer_insert(buffer, &iter, ending, -1);
+    free(ending);
     sqlite3_close(db);
     
 }
@@ -215,8 +244,8 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     GtkWidget *label;
     sqlite3 *db;
     int rc;
-    SearchSubmitPair *temp = malloc(sizeof(pair + 1));
-    memcpy(temp, pair, sizeof(pair + 1));
+    SearchSubmitPair *temp = malloc(sizeof(SearchSubmitPair) + 1);
+    memcpy(temp, pair, sizeof(pair) + 1);
     Product *searchproduct = search_product(atoi(gtk_entry_get_text(GTK_ENTRY(pair->input))));
     new_sale_group();
     
@@ -240,7 +269,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
 static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     int i;
     float cost = 0.00;
-    Product *temp = malloc(sizeof(temp) + 1);
+    Product *temp = malloc(sizeof(Product) + 1);
     char* placeholder = malloc(sizeof("0000000000.00") + 1);
     for (i = 0; i < pair->count; i++){
         if (pair->values[i] != 0){
@@ -255,6 +284,21 @@ static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     
     if (atof(gtk_entry_get_text(GTK_ENTRY(widget))) >= cost && cost != 0 && atof(gtk_entry_get_text(GTK_ENTRY(widget))) != 0){
         sale_success(widget, pair);
+        if (atof(gtk_entry_get_text(GTK_ENTRY(widget))) > cost){
+            GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+            GtkWidget *dialog;
+            dialog = gtk_message_dialog_new (GTK_WINDOW(pair->window),
+                                        flags,
+                                        GTK_MESSAGE_ERROR,
+                                        GTK_BUTTONS_CLOSE,
+                                        "$%0.2f change",
+                                        atof(gtk_entry_get_text(GTK_ENTRY(widget))) - cost);
+            gtk_dialog_run(GTK_DIALOG(dialog));
+            gtk_window_close(GTK_WINDOW(pair->window));
+        }
+        else {
+            gtk_window_close(GTK_WINDOW(pair->window));
+        }
     }
     else {
         sprintf(placeholder, "%0.2f", cost);
@@ -303,7 +347,8 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
             break;
         }
     }
-    gtk_window_close(GTK_WINDOW(pair->window));
+    
+    //gtk_window_close(GTK_WINDOW(pair->window));
 }
 
 static void update_products(GtkWidget *widget, ProductFieldSet *fields);
