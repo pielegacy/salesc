@@ -60,10 +60,9 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkLabel" id="sale_receipt">
+                          <object class="GtkTextView" id="sale_receipt">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">label</property>
+                            <property name="can_focus">True</property>
                           </object>
                         </child>
                       </object>

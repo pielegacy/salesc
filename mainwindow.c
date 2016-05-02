@@ -88,14 +88,33 @@ static void clear_window(GtkWidget *widget, GtkWidget *window){
 }
 static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
     GtkBuilder *builder;
-    gtk_init(&argc, &argv);
     GObject *menu_window;
+    GObject *sale_product_list;
     
+    builder = gtk_builder_new();
+    sqlite3 *db;
+    int rc;
+    rc = sqlite3_open("salesc.db", &db);
+    char *errmessage = 0;
+    sqlite3_stmt *result;
     const char *text = gtk_button_get_label(GTK_BUTTON(widget));
     char *text_normal = malloc(strlen(text) + 1);
     strcpy(text_normal, text);
-    char *output = strtok(text_normal, ":");
-    printf("%s\n", output);
+    int sale_group = atoi(strtok(text_normal, ":"));
+    // printf("%s\n", output);
+    gtk_builder_add_from_file(builder, "ui/sale_details.ui", NULL);
+    menu_window = gtk_builder_get_object(builder, "mainwindow");
+    sale_product_list = gtk_builder_get_object(builder, "sale_receipt");
+    char *sql_statement = sqlite3_mprintf("SELECT * FROM SALES WHERE SALE_GROUP = %d;", sale_group);
+    sqlite3_prepare_v2(db, sql_statement, 128, &result, NULL); 
+    while ((rc = sqlite3_step(result)) == SQLITE_ROW){
+        printf("%d\n", sqlite3_column_int(result, 2));
+        
+        gtk_label_set_text(GTK_LABEL(sale_product_list),);
+        //g_signal_connect(product_option, "clicked", G_CALLBACK(add_from_list), fields);
+    }
+    
+    sqlite3_close(db);
     
 }
 static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
@@ -162,12 +181,6 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
 }
 // Adds a product from the product list in the bottom
 static void add_from_list(GtkWidget *widget, SearchSubmitPair *fields){
-    // const char *buttonlabel = 
-    //char *buttontext;
-    //strcpy(buttontext, gtk_button_get_label(GTK_BUTTON(widget)));
-    //char *temp_id = strtok(gtk_button_get_label(GTK_BUTTON(widget)), ":");
-    //char *temp_id = "0.01";
-    //printf("THE ID IS %d", temp_id);
     gtk_widget_grab_focus(GTK_WIDGET(fields->input));
     const char *text = gtk_button_get_label(GTK_BUTTON(widget));
     char *text_normal = malloc(strlen(text) + 1);
