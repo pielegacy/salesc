@@ -83,5 +83,6 @@ char *price_string_concat(float price, char *string);
 int recent_payment_id();
 // Get paymount amount by id
 float payment_amount_retrieve(int id);
-
+// Get payment type by id
+int payment_type_retrieve(int id);
 #endif

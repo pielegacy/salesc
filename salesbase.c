@@ -274,6 +274,23 @@ float payment_amount_retrieve(int id){
     sqlite3_close(db);
     return temp;
 }
+int payment_type_retrieve(int id){
+    int temp;
+    sqlite3 *db;
+    int rc;
+    int salegroup, paymentid;
+    rc = sqlite3_open("salesc.db", &db);
+    sqlite3_stmt *result;
+    char *err = 0;
+    char *search = sqlite3_mprintf("SELECT PAYMENT_TYPE FROM PAYMENTS WHERE PAYMENT_ID = %d;", id);
+    sqlite3_prepare_v2(db, search, 128, &result, NULL);
+    if ((rc = sqlite3_step(result)) == SQLITE_ROW){
+        temp = sqlite3_column_int(result, 0);
+    }
+    sqlite3_reset(result);
+    sqlite3_close(db);
+    return temp;
+}
 int new_sale_group(){
     int res = 0;
     sqlite3 *db;

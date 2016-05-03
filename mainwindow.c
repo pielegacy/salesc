@@ -7,11 +7,7 @@
 #include <sqlite3.h>
 #include <unistd.h>
 
-// static void change_text(GtkWidget *widget, gpointer data){
-//     const char* output = gtk_entry_get_text(GTK_ENTRY(widget));
-//     printf("The text is : %s\n", output);
-// }
-const int auto_increment = 0;
+const int auto_increment = 0; // Does the DB AutoIncrement?
 static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair);
 static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair);
 static void show_price(GtkWidget *widget, SearchSubmitPair *pair);
@@ -23,6 +19,7 @@ static void add_from_list(GtkWidget *widget, SearchSubmitPair *fields);
 static void new_sale_window(GtkWidget *widget, GtkBuilder *builder);
 static void new_product_window(GtkWidget *widget, GtkBuilder *builder);
 static void view_sale_window(GtkWidget *widget, gpointer sale_pointer);
+static void view_sale_list_window(GtkWidget *widget, gpointer thing);
 static void refresh_window(GtkWidget *widget, GObject *sale_list);
 // Fill list of products
 void fill_product_list(GObject *list, SearchSubmitPair *fields);
@@ -36,6 +33,7 @@ int main(int argc, char *argv[]){
     GObject *new_sale;
     GObject *new_product;
     GObject *sale_list;
+    GObject *refresh_sales;
     db_create(auto_increment);
     // I <3 James Qu      
     builder = gtk_builder_new();
@@ -44,8 +42,9 @@ int main(int argc, char *argv[]){
     new_sale = gtk_builder_get_object(builder, "new_sale");
     new_product = gtk_builder_get_object(builder, "new_product");
     sale_list = gtk_builder_get_object(builder, "sales_list");
+    refresh_sales = gtk_builder_get_object(builder, "refresh_sales");
     fill_sales(sale_list);
-    g_signal_connect(menu_window, "activate-focus", G_CALLBACK(refresh_window), sale_list);
+    g_signal_connect(refresh_sales, "clicked", G_CALLBACK(view_sale_list_window), NULL);
     g_signal_connect(new_sale, "clicked", G_CALLBACK(new_sale_window), builder);
     g_signal_connect(new_product, "clicked", G_CALLBACK(new_product_window), builder);
     //gtk_window_fullscreen(GTK_WINDOW(menu_window));
@@ -54,7 +53,20 @@ int main(int argc, char *argv[]){
 
     return 0;
 }
+static void view_sale_list_window(GtkWidget *widget, gpointer thing){
+    GtkBuilder *builder;
+    GObject *sale_list;
+    GObject *menu_window;
+    builder = gtk_builder_new();
+    gtk_builder_add_from_file(builder, "ui/sale_directory.ui", NULL);
+    
+    menu_window = gtk_builder_get_object(builder, "mainwindow"); 
+    sale_list = gtk_builder_get_object(builder, "sales_list");
+    
+    fill_sales(sale_list);
+}
 static void refresh_window(GtkWidget *widget, GObject *sale_list){
+    printf("refreshing...\n");
     fill_sales(sale_list);
 }
 void fill_sales(GObject *sale_list){
@@ -62,15 +74,21 @@ void fill_sales(GObject *sale_list){
     int rc;
     int currentsale = 1;
     int currentsalecount = 0;
+    int list_size_current = 0;
     char *currentitemlist = malloc(sizeof("") + 1);
     rc = sqlite3_open("salesc.db", &db);
     char *errmessage = 0;
     sqlite3_stmt *result;
     sqlite3_prepare_v2(db, "SELECT * FROM SALES;", 128, &result, NULL); 
+    float payment;
+    gtk_list_box_select_all(GTK_LIST_BOX(sale_list));
+    GList *list_version = gtk_list_box_get_selected_rows(GTK_LIST_BOX(sale_list));
+    guint list_size = g_list_length(list_version);
+    printf("The size of the list is %d", list_size);
     while ((rc = sqlite3_step(result)) == SQLITE_ROW){
         if (currentsale != sqlite3_column_int(result, 1)){
+            if (list_size_current > list_size){
             GtkWidget *sale_option;
-            float payment = payment_amount_retrieve(sqlite3_column_int(result,3));
             char *label_final = malloc(strlen(sqlite3_column_text(result,1)) + sizeof(currentsalecount) + sizeof(payment) + (20 * sizeof(char)));
             sprintf(label_final, "%d : %d item/s for $%0.2f",currentsale, currentsalecount, payment);
             //const 
@@ -79,11 +97,13 @@ void fill_sales(GObject *sale_list){
             gtk_list_box_insert(GTK_LIST_BOX(sale_list), product_option, 100);
             currentsale = sqlite3_column_int(result, 1);
             currentsalecount = 1;
+            }
+            list_size_current++;
         }
         else {
             currentsalecount++;
         }
-        
+        payment = payment_amount_retrieve(sqlite3_column_int(result,3));
     }
     gtk_widget_show_all(GTK_WIDGET(sale_list));
     sqlite3_close(db);
@@ -123,6 +143,7 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
     sprintf(group_string,"Sale #%d\n\n", sale_group);
     gtk_text_buffer_insert(buffer, &iter, group_string, -1);
     float total_cost = 0.0;
+    int paytype = 0;
     char *sql_statement = sqlite3_mprintf("SELECT * FROM SALES WHERE SALE_GROUP = %d;", sale_group);
     sqlite3_prepare_v2(db, sql_statement, 128, &result, NULL); 
     while ((rc = sqlite3_step(result)) == SQLITE_ROW){
@@ -130,8 +151,9 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
         temp = search_product(sqlite3_column_int(result, 2));
         payment_amount = payment_amount_retrieve(sqlite3_column_int(result, 3));
         total_cost += temp->product_cost;
+        paytype = payment_type_retrieve(sqlite3_column_int(result, 3));
         char *product_string = malloc(sizeof(temp->product_cost) + strlen(temp->product_name) + sizeof(temp->product_id) + 20);
-        sprintf(product_string, "$%0.2f %d - %s\n", temp->product_cost, temp->product_id, temp->product_name);
+        sprintf(product_string, "$%0.2f - %s (%d)\n", temp->product_cost, temp->product_name, temp->product_id);
         gtk_text_buffer_insert(buffer, &iter, product_string, -1);
         free(product_string);
         free(temp);
@@ -140,8 +162,25 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
     if (payment_amount > total_cost)
         change = payment_amount - total_cost;
     char *ending = malloc(sizeof(total_cost) + sizeof(payment_amount) + sizeof(char[40]) + sizeof(change) + 1); // I know the vague mallocs are bad, soz babes
-    sprintf(ending, "\nTotal : $%0.2f\nPaid : $%0.2f\nChange : $%0.2f", total_cost, payment_amount, change);
+    sprintf(ending, "\nTotal : $%0.2f\nPaid : $%0.2f\nChange : $%0.2f\n\n", total_cost, payment_amount, change);
     gtk_text_buffer_insert(buffer, &iter, ending, -1);
+    char paytypestring[40] = "Payment Type : Other";
+    switch (paytype){
+        case 0:
+            strcpy(paytypestring, "Payment Type : Cash");
+        break;
+        case 1:
+            strcpy(paytypestring, "Payment Type : Debit");
+        break;
+        case 2:
+            strcpy(paytypestring, "Payment Type : Credit");
+        break;
+        case 3:
+            strcpy(paytypestring, "Payment Type : Cheque");
+        break;
+        
+    }
+    gtk_text_buffer_insert(buffer, &iter, paytypestring, -1);
     free(ending);
     sqlite3_close(db);
     
@@ -318,7 +357,7 @@ static void clear_payment_field(GtkWidget *widget, SearchSubmitPair *pair){
 
 static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
     const gchar *widgettype = gtk_widget_get_name(paywidget);
-    //printf("TYPE IS %s", widgettype);
+    printf("TYPE IS %s\n", widgettype);
     printf("Processing payment...\n");
     Payment *temp = malloc(sizeof(Payment) + 1);
     int pay_type;
@@ -334,7 +373,7 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
     {
         pay_type = CREDIT;
     }
-    temp = new_payment(0,CASH,paid);
+    temp = new_payment(0,pay_type,paid);
     add_payment(temp);
     int pay_id = recent_payment_id();
     int sale_group = new_sale_group();
