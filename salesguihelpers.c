@@ -40,7 +40,6 @@ int process_product_fields(Product *product, int autoinc){
     }
     return 0;
 }
-// BIND TO LOCAL GTK EVENT! NO GTK WIDGET IS BAD
 void fill_product_fields(ProductFieldSet *fields){
     int id = atoi(gtk_entry_get_text(GTK_ENTRY(fields->product_id)));
     Product *temp = malloc(sizeof(Product) + 1);
