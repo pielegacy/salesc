@@ -62,7 +62,7 @@ Payment *new_payment(int id, int paytype, float received){
     temp->payment_amount = received;
     return temp;
 }
-// Increment = 1 (doesn't auto increment)
+// Autoinc is often changed in the mainwindow.c file
 int db_create(int autoinc){
     if (access("salesc.db", F_OK) == -1){
         sqlite3 *db;
