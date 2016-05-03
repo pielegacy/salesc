@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
     GObject *menu_window;
     GObject *new_sale;
     GObject *new_product;
-    GObject *sale_list;
+    //GObject *sale_list;
     GObject *refresh_sales;
     db_create(auto_increment);
     // I <3 James Qu      
@@ -41,9 +41,9 @@ int main(int argc, char *argv[]){
     menu_window = gtk_builder_get_object(builder, "mainwindow");    
     new_sale = gtk_builder_get_object(builder, "new_sale");
     new_product = gtk_builder_get_object(builder, "new_product");
-    sale_list = gtk_builder_get_object(builder, "sales_list");
+    //sale_list = gtk_builder_get_object(builder, "sales_list");
     refresh_sales = gtk_builder_get_object(builder, "refresh_sales");
-    fill_sales(sale_list);
+    //fill_sales(sale_list);
     g_signal_connect(refresh_sales, "clicked", G_CALLBACK(view_sale_list_window), NULL);
     g_signal_connect(new_sale, "clicked", G_CALLBACK(new_sale_window), builder);
     g_signal_connect(new_product, "clicked", G_CALLBACK(new_product_window), builder);
