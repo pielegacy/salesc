@@ -111,6 +111,7 @@ void fill_sales(GObject *sale_list){
 static void clear_window(GtkWidget *widget, GtkWidget *window){
     gtk_window_close(GTK_WINDOW(window));
 }
+// Generates a "receipt" from the ID found in the button pressed
 static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
     GtkBuilder *builder;
     GObject *menu_window;
@@ -185,6 +186,7 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
     sqlite3_close(db);
     
 }
+// The new Sale Window
 static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GtkBuilder *builder;
     GObject *sale_window;
@@ -200,18 +202,14 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GObject *payment_credit;
     GObject *payment_cheque;
     
-    //ListSubmitSet *listsubmit = malloc(sizeof(ListSubmitSet) + 1);
-    
     int val[100];
     // I <3 James Qu      
     builder = gtk_builder_new();
     db_create(1);
     gtk_builder_add_from_file(builder, "ui/main.ui", NULL);
     sale_window = gtk_builder_get_object(builder, "mainwindow");
-    //g_signal_connect (sale_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     product_search = gtk_builder_get_object(builder, "product_entry");
-    //submit_button = gtk_builder_get_object(builder, "submit_button");
     process_button = gtk_builder_get_object(builder, "payment_process");
     sale_list = gtk_builder_get_object(builder, "sale_products");
     payment_cash = gtk_builder_get_object(builder, "payment_cash");
@@ -231,7 +229,6 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     
     product_list = gtk_builder_get_object(builder, "product_list");
     fill_product_list(product_list, searchtolist);
-    //_signal_connect(submit_button, "clicked", G_CALLBACK(add_sale_list), searchtolist);
     g_signal_connect(product_search, "activate", G_CALLBACK(add_sale_list), searchtolist);
     g_signal_connect(process_button, "clicked", G_CALLBACK(clear_window), sale_window);
     g_signal_connect(payment_cash, "activate", G_CALLBACK(total_sale_list), searchtolist);
@@ -256,6 +253,7 @@ static void add_from_list(GtkWidget *widget, SearchSubmitPair *fields){
     char *output = strtok(text_normal, ":");
     gtk_entry_set_text(GTK_ENTRY(fields->input), output);
 }
+// Fills the list of available products to sell
 void fill_product_list(GObject *list, SearchSubmitPair *fields){
     sqlite3 *db;
     int rc;
@@ -271,13 +269,13 @@ void fill_product_list(GObject *list, SearchSubmitPair *fields){
         sprintf(label, "%s: %s $%0.2f", sqlite3_column_text(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
         const char *label_final = label;
         product_option = gtk_button_new_with_label(label_final);
-        //printf("%d : %s for $%0.2f\n",sqlite3_column_int(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
         g_signal_connect(product_option, "clicked", G_CALLBACK(add_from_list), fields);
         gtk_list_box_insert(GTK_LIST_BOX(list), product_option, 100);
     }
     gtk_widget_show_all(GTK_WIDGET(list));
     sqlite3_close(db);
 }
+
 // Adds a product to the sale list
 static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     GtkWidget *label;
@@ -305,7 +303,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");
 }
 
-
+// Completes the sale 
 static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     int i;
     float cost = 0.00;
@@ -352,11 +350,11 @@ static void show_price(GtkWidget *widget, SearchSubmitPair *pair){
     int i = 0;
     printf("The count is %d\n", pair->count);
 }
-
+// Simple method to clear text of a payment widget
 static void clear_payment_field(GtkWidget *widget, SearchSubmitPair *pair){
     gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
-
+// Called when a sale is successful
 static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
     const gchar *widgettype = gtk_widget_get_name(paywidget);
     printf("TYPE IS %s\n", widgettype);
@@ -364,6 +362,7 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
     Payment *temp = malloc(sizeof(Payment) + 1);
     int pay_type;
     float paid = atof(gtk_entry_get_text(GTK_ENTRY(paywidget)));
+    // Possibly could be done better with an enumeration, not worth the bug fixing tho
     if (strcmp("payment_cash", widgettype) == 0){
         pay_type = 0;
     }
@@ -388,14 +387,12 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
             break;
         }
     }
-    
-    //gtk_window_close(GTK_WINDOW(pair->window));
 }
 
 static void update_products(GtkWidget *widget, ProductFieldSet *fields);
 static void pull_product(GtkWidget *widget, ProductFieldSet *fields);
 static void updatefields(GtkWidget *widget, ProductFieldSet *fields);
-
+// Displays the window used to add and update products, possibly remove oldbuilder for future releases
 static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GtkBuilder *builder;
     GObject *product_window;
@@ -428,7 +425,6 @@ static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     g_signal_connect(product_process, "clicked", G_CALLBACK(update_products), fields);    
     g_signal_connect(product_search, "clicked", G_CALLBACK(pull_product), fields);
     g_signal_connect(product_id, "activate", G_CALLBACK(pull_product), fields);
-    // g_signal_connect(product_id, "changed", G_CALLBACK(updatefields), fields);
 }
 static void update_products(GtkWidget *widget, ProductFieldSet *fields){
     Product *passthrough = malloc(sizeof(Product) + 1);
@@ -444,12 +440,7 @@ static void update_products(GtkWidget *widget, ProductFieldSet *fields){
         empty_fields(fields);
     }
 }
-// static void updatefields(GtkWidget *widget, ProductFieldSet *fields){
-//     fields->product_id = gtk_builder_get_object(fields->builder, "product_id");
-//     fields->product_name = gtk_builder_get_object(fields->builder, "product_name");
-//     fields->product_cost = gtk_builder_get_object(fields->builder, "product_cost");
-//     fields->product_discount = gtk_builder_get_object(fields->builder, "product_discount");
-// }
+// Used as a middle ground to fill the products in the list
 static void pull_product(GtkWidget *widget, ProductFieldSet *fields){
     fill_product_fields(fields);
 }

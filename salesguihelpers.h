@@ -3,6 +3,11 @@
 
 #include<gtk/gtk.h>
 #include "salesbase.h"
+
+// SalesC GUI Helpers Class
+// As the name implies, this allows for easy usage of GTK UI Elements with the SalesC base
+
+// Allows for the transfer of a PLU number into a product in a list
 typedef struct searchsubmit{
     GObject *input;
     GObject *output;
@@ -12,7 +17,7 @@ typedef struct searchsubmit{
     int values[100];
     int id;
 } SearchSubmitPair;
-
+// Allows products to be submitted to the database
 typedef struct productSubmit{
     GObject *window;
     GtkBuilder *builder;

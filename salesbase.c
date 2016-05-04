@@ -47,22 +47,6 @@ void *update_product(Product *product){
     rc = sqlite3_exec(db, testsql, callback, 0, &err);
     sqlite3_close(db);
 }
-// Sale *new_sale(int id, Product **items, PaymentType paytype, float received){
-//     Sale *temp = malloc(sizeof(Sale));
-//     temp->sale_id = id;
-//     memcpy(temp->sale_items, items, sizeof(items));
-//     temp->sale_payment = new_payment(temp->sale_id, paytype, received); // 100 is placeholder code
-//     return temp;
-// }
-// Sell *new_sell(int group, Product *product, PaymentType paytype, float received){
-//     Sell *temp = malloc(sizeof(Sell));
-//     temp->sale_group = group;
-//     // memcpy(temp->sale_item, product, sizeof(product));
-//     temp->sale_item = malloc(sizeof(Product));
-//     temp->sale_item = product;
-//     temp->sale_payment = new_payment(1000, paytype, received);
-//     return temp;    
-// }
 SellFromID *new_sell_from_id(int group, int product, int payment)
 {
      SellFromID *temp = malloc(sizeof(SellFromID));
@@ -78,7 +62,7 @@ Payment *new_payment(int id, int paytype, float received){
     temp->payment_amount = received;
     return temp;
 }
-// Increment = 1 (doesn't auto increment)
+// Autoinc is often changed in the mainwindow.c file
 int db_create(int autoinc){
     if (access("salesc.db", F_OK) == -1){
         sqlite3 *db;
@@ -184,25 +168,6 @@ void add_payment(Payment *payment){
     printf("ERROR : %s\n", err);
     sqlite3_close(db);
 }
-// Adds a sell (singular sale)
-// void add_sell(Sell *sell){
-//     sqlite3 *db;
-//     int rc;
-//     int salegroup, paymentid;
-//     rc = sqlite3_open("salesc.db", &db);
-//     char *err = 0;
-//     add_payment(sell->sale_payment); // Adds the payment
-//     sqlite3_stmt *result;
-//     sqlite3_prepare_v2(db, "SELECT * FROM SALES ORDER BY SALE_GROUP DESC LIMIT 1;", 128, &result, NULL);
-//     salegroup = sqlite3_column_int(result, 1) + 1;
-//     sqlite3_prepare_v2(db, "SELECT * FROM PAYMENTS ORDER BY SALE_GROUP DESC LIMIT 1;", 128, &result, NULL);
-//     paymentid = sqlite3_column_int(result, 0) + 1;
-//     //printf("%d with a payment id of %d\n", salegroup, paymentid);
-//     char *testsql = sqlite3_mprintf("INSERT INTO SALES (SALE_GROUP, SALE_ITEM_ID, SALE_PAYMENT_ID) VALUES (%d, %d, %d);", sell->sale_group, 420, paymentid);  
-//     //printf("THIS IS A TEST : %s\n", testsql); 
-//     rc = sqlite3_exec(db, testsql, callback, 0, &err);
-//     sqlite3_close(db);
-// }
 void add_sell_from_id(SellFromID *sell){
     sqlite3 *db;
     int rc;
