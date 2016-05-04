@@ -23,6 +23,7 @@ typedef struct Payments{
 // DEPRECATED AS IT DOESN'T WORK
 // A sale holds multiple products
 // This needs to be fixed for DB support and sale_payment needs to be a pointer
+// I'm sorry the database isn't dynamic :'(
 typedef struct Sales{
     int sale_id;
     Product *sale_items[100];
