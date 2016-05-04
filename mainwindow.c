@@ -301,6 +301,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         //g_signal_connect(GTK_WIDGET(label), "clicked", G_CALLBACK(gtk_main_quit), NULL);  
         gtk_widget_show_all(GTK_WIDGET(pair->output));
     }
+    free(searchproduct);
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");
 }
 
@@ -308,10 +309,11 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
 static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     int i;
     float cost = 0.00;
-    Product *temp = malloc(sizeof(Product) + 1);
-    char* placeholder = malloc(sizeof("0000000000.00") + 1);
+    Product *temp; //= malloc(sizeof(Product) + 1);
+    char* placeholder = malloc(strlen("0000000000.00") + 1);
     for (i = 0; i < pair->count; i++){
         if (pair->values[i] != 0){
+            temp = malloc(sizeof(search_product(pair->values[i])));
             temp = search_product(pair->values[i]);
             printf("Value %s is %0.2f\n", temp->product_name, temp->product_cost);
             cost += temp->product_cost;
