@@ -110,7 +110,7 @@ void fill_sales(GObject *sale_list){
     gtk_widget_show_all(GTK_WIDGET(sale_list));
     sqlite3_finalize(result);
     sqlite3_close(db);
-    free(currentitemlist);
+    //free(currentitemlist);
 }
 static void clear_window(GtkWidget *widget, GtkWidget *window){
     gtk_window_close(GTK_WINDOW(window));
@@ -307,7 +307,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         //g_signal_connect(GTK_WIDGET(label), "clicked", G_CALLBACK(gtk_main_quit), NULL);  
         gtk_widget_show_all(GTK_WIDGET(pair->output));
     }
-    //free(searchproduct);
+    free(searchproduct);
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");
 }
 
@@ -346,8 +346,8 @@ static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         else {
             gtk_window_close(GTK_WINDOW(pair->window));
         }
-        free(temp);
-        free(pair);
+        //free(temp);
+        //free(pair);
     }
     else {
         sprintf(placeholder, "%0.2f", cost);
@@ -401,7 +401,7 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
             break;
         }
     }
-    free(temp);
+    //free(temp);	
 }
 
 static void update_products(GtkWidget *widget, ProductFieldSet *fields);

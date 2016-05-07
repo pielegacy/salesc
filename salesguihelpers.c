@@ -30,6 +30,8 @@ float sales_total(SearchSubmitPair *pair){
 int process_product_fields(Product *product, int autoinc){
     Product *checker = malloc(sizeof(Product) + 1);
     checker = search_product(product->product_id);
+    if (product->product_discount > 1 || product->product_discount < 0)
+        product->product_discount = 0.0;
     if (strcmp(checker->product_name, "DOESNT_EXIST") != 0){ // Exists
         update_product(product);
         return 1;
