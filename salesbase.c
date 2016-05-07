@@ -131,6 +131,7 @@ void console_readproductnames(){
         printf("%d : %s for $%0.2f\n",sqlite3_column_int(result, 0), sqlite3_column_text(result, 1), sqlite3_column_double(result, 2));
     }
     printf("-- END LIST --");
+    sqlite3_finalize(result);
     sqlite3_close(db);
 }
 // ADDS A TEST VALUE (REMOVE IN FINAL BUILD)
@@ -200,6 +201,7 @@ Product *search_product(int id){
         temp = new_product(sqlite3_column_int(result, 0), "DOESNT_EXIST", sqlite3_column_double(result, 2));
     }
     sqlite3_reset(result);
+    sqlite3_finalize(result);
     sqlite3_close(db);
     return temp;
 }
