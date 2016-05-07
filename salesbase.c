@@ -47,13 +47,15 @@ void *update_product(Product *product){
     rc = sqlite3_exec(db, testsql, callback, 0, &err);
     sqlite3_close(db);
 }
-SellFromID *new_sell_from_id(int group, int product, int payment)
+SellFromID *new_sell_from_id(int group, int product, int payment, float sale_price)
 {
-     SellFromID *temp = malloc(sizeof(SellFromID));
+     SellFromID *temp = malloc(sizeof(SellFromID) + 1);
      temp->sale_group = group;
      temp->product_id = product;
      temp->payment_id = payment;
-     
+     temp->sale_price = sale_price;
+     printf("works");
+     return temp;
 }
 Payment *new_payment(int id, int paytype, float received){
     Payment *temp = malloc(sizeof(Payment));
@@ -84,7 +86,8 @@ int db_create(int autoinc){
             "SALE_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
             "SALE_GROUP INTEGER NOT NULL," \
             "SALE_ITEM_ID INTEGER NOT NULL," \
-            "SALE_PAYMENT_ID INTEGER NOT NULL);";
+            "SALE_PAYMENT_ID INTEGER NOT NULL,"\
+            "SALE_PRICE REAL NOT NULL);";
             
             char *paymentssql = "CREATE TABLE PAYMENTS(" \
             "PAYMENT_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
@@ -105,7 +108,8 @@ int db_create(int autoinc){
             "SALE_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
             "SALE_GROUP INTEGER NOT NULL," \
             "SALE_ITEM_ID INTEGER NOT NULL," \
-            "SALE_PAYMENT_ID INTEGER NOT NULL);";
+            "SALE_PAYMENT_ID INTEGER NOT NULL,"\
+            "SALE_PRICE REAL NOT NULL);";
             
             char *paymentssql = "CREATE TABLE PAYMENTS(" \
             "PAYMENT_ID INTEGER PRIMARY KEY AUTOINCREMENT," \
@@ -175,7 +179,7 @@ void add_sell_from_id(SellFromID *sell){
     int salegroup, paymentid;
     rc = sqlite3_open("salesc.db", &db);
     char *err = 0;
-    char *testsql = sqlite3_mprintf("INSERT INTO SALES (SALE_GROUP, SALE_ITEM_ID, SALE_PAYMENT_ID) VALUES (%d, %d, %d);", sell->sale_group, sell->product_id, sell->payment_id);  
+    char *testsql = sqlite3_mprintf("INSERT INTO SALES (SALE_GROUP, SALE_ITEM_ID, SALE_PAYMENT_ID, SALE_PRICE) VALUES (%d, %d, %d, %0.2f);", sell->sale_group, sell->product_id, sell->payment_id, sell->sale_price);  
     rc = sqlite3_exec(db, testsql, callback, 0, &err);
     sqlite3_close(db);
 }

@@ -103,9 +103,9 @@ void fill_sales(GObject *sale_list){
             list_size_current++;
         }
         else {
+            payment = payment_amount_retrieve(sqlite3_column_int(result,3));
             currentsalecount++;
         }
-        payment = payment_amount_retrieve(sqlite3_column_int(result,3));
     }
     gtk_widget_show_all(GTK_WIDGET(sale_list));
     sqlite3_finalize(result);
@@ -157,10 +157,10 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
         Product *temp = malloc(sizeof(Product) + 1);
         temp = search_product(sqlite3_column_int(result, 2));
         payment_amount = payment_amount_retrieve(sqlite3_column_int(result, 3));
-        total_cost += temp->product_cost;
+        total_cost += sqlite3_column_double(result, 4);
         paytype = payment_type_retrieve(sqlite3_column_int(result, 3));
-        char *product_string = malloc(sizeof(temp->product_cost) + strlen(temp->product_name) + sizeof(temp->product_id) + 20);
-        sprintf(product_string, "$%0.2f - %s (%d)\n", temp->product_cost, temp->product_name, temp->product_id);
+        char *product_string = malloc(sizeof(sqlite3_column_double(result, 4)) + strlen(temp->product_name) + sizeof(temp->product_id) + 20);
+        sprintf(product_string, "$%0.2f - %s (%d)\n", sqlite3_column_double(result, 4), temp->product_name, temp->product_id);
         gtk_text_buffer_insert(buffer, &iter, product_string, -1);
         //free(product_string);
         //free(temp);
@@ -391,7 +391,11 @@ static void sale_success(GtkWidget *paywidget, SearchSubmitPair *pair){
     int i;
     for (i = 0; i < pair->count; i++){
         if (pair->values[i] != 0){
-            add_sell_from_id(new_sell_from_id(sale_group, pair->values[i], pay_id));
+            Product *check = malloc(sizeof(Product) + 1);
+            check = search_product(pair->values[i]);
+            float actual_cost = check->product_cost - (check->product_cost * check->product_discount);
+            printf("Actual cost : $%0.2f", actual_cost);
+            add_sell_from_id(new_sell_from_id(sale_group, pair->values[i], pay_id, actual_cost));
         }
         else {
             break;

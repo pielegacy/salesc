@@ -40,6 +40,7 @@ typedef struct SellFromIDs{
     int sale_group;
     int product_id;
     int payment_id;
+    float sale_price;
 } SellFromID;
 // Add a new product
 Product *new_product(int id, char name[120], float cost, float discount);
@@ -52,7 +53,7 @@ Sale *new_sale(int id, Product **items, PaymentType paytype, float received);
 // Adds a sell (Sales prototype)
 Sell *new_sell(int group, Product *product, PaymentType paytype, float received);
 // Adds a sell using IDs
-SellFromID *new_sell_from_id(int group, int product, int payment);
+SellFromID *new_sell_from_id(int group, int product, int payment, float sale_price);
 // Add a new Payment
 Payment *new_payment(int id, int paytype, float received);
 // SQL Callback (Taken from http://www.tutorialspoint.com/sqlite/sqlite_c_cpp.htm)
