@@ -162,8 +162,9 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
     float change = 0.00;
     if (payment_amount > total_cost)
         change = payment_amount - total_cost;
-    char *ending = malloc(sizeof(total_cost) + sizeof(payment_amount) + sizeof(char[40]) + sizeof(change) + 1); // I know the vague mallocs are bad, soz babes
-    sprintf(ending, "\nTotal : $%0.2f\nPaid : $%0.2f\nChange : $%0.2f\n\n", total_cost, payment_amount, change);
+    float gst = total_cost / 10;
+    char *ending = malloc(sizeof(total_cost) + sizeof(payment_amount) + sizeof(char[60]) + sizeof(change) + sizeof(gst) + 1); // I know the vague mallocs are bad, soz babes
+    sprintf(ending, "\nTotal : $%0.2f\nGST Included : $%0.2f\nPaid : $%0.2f\nChange : $%0.2f\n\n", total_cost, gst, payment_amount, change);
     gtk_text_buffer_insert(buffer, &iter, ending, -1);
     char paytypestring[40] = "Payment Type : Other";
     switch (paytype){
