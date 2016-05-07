@@ -22,20 +22,20 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
    printf("\n");
    return 0;
 }
-Product *new_product(int id, char name[120], float cost){
+Product *new_product(int id, char name[120], float cost, float discount){
     Product *temp = malloc(sizeof(Product));
     temp->product_id = id;
     strcpy(temp->product_name, name);
     temp->product_cost = cost;
-    temp->product_discount = 0.00;
+    temp->product_discount = discount;
     return temp;
 }
-Product *new_product_v2(int id, char *name, float cost){
+Product *new_product_v2(int id, char *name, float cost, float discount){
     Product *temp = malloc(sizeof(Product));
     temp->product_id = id;
     strcpy(temp->product_name, name);
     temp->product_cost = cost;
-    temp->product_discount = 0.00;
+    temp->product_discount = discount;
     return temp;
 }
 void *update_product(Product *product){
@@ -195,11 +195,12 @@ Product *search_product(int id){
     if ((rc = sqlite3_step(result)) == SQLITE_ROW){
         const unsigned char *name = sqlite3_column_text(result, 1);
         char *actualname = strdup(name);
-        temp = new_product(sqlite3_column_int(result, 0), actualname, sqlite3_column_double(result, 2));
+        temp = new_product(sqlite3_column_int(result, 0), actualname, sqlite3_column_double(result, 2), sqlite3_column_double(result, 3));
     }
     else {
-        temp = new_product(sqlite3_column_int(result, 0), "DOESNT_EXIST", sqlite3_column_double(result, 2));
+        temp = new_product(sqlite3_column_int(result, 0), "DOESNT_EXIST", sqlite3_column_double(result, 2), sqlite3_column_double(result, 3));
     }
+    printf("%0.2f\n", temp->product_discount);
     sqlite3_reset(result);
     sqlite3_finalize(result);
     sqlite3_close(db);

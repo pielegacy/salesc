@@ -162,8 +162,8 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
         char *product_string = malloc(sizeof(temp->product_cost) + strlen(temp->product_name) + sizeof(temp->product_id) + 20);
         sprintf(product_string, "$%0.2f - %s (%d)\n", temp->product_cost, temp->product_name, temp->product_id);
         gtk_text_buffer_insert(buffer, &iter, product_string, -1);
-        free(product_string);
-        free(temp);
+        //free(product_string);
+        //free(temp);
     }
     float change = 0.00;
     if (payment_amount > total_cost)
@@ -296,13 +296,13 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     new_sale_group();
     if (strcmp(searchproduct->product_name, "DOESNT_EXIST") != 0){
         char *res = malloc(strlen(searchproduct->product_name)*2 + 1); // I know this is dodgy, will fix late
-        sprintf(res, "$%0.2f : %s", searchproduct->product_cost, searchproduct->product_name);
+        sprintf(res, "$%0.2f : %s", (searchproduct->product_cost - (searchproduct->product_cost * searchproduct->product_discount)), searchproduct->product_name);
         const char* label_text = res;
         label = gtk_label_new(label_text);
         printf("%s\n", label_text);
         pair->values[pair->count] = searchproduct->product_id;
         pair->count += 1;
-        printf("%s added for $%0.2f, size of sale increased to : %d\n", searchproduct->product_name, searchproduct->product_cost, pair->count);
+        //printf("%s added for $%0.2f, size of sale increased to : %d\n", searchproduct->product_name, searchproduct->product_cost, pair->count);
         gtk_list_box_insert(GTK_LIST_BOX(pair->output), label, 100);
         //g_signal_connect(GTK_WIDGET(label), "clicked", G_CALLBACK(gtk_main_quit), NULL);  
         gtk_widget_show_all(GTK_WIDGET(pair->output));
@@ -321,8 +321,8 @@ static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         if (pair->values[i] != 0){
             temp = malloc(sizeof(search_product(pair->values[i])));
             temp = search_product(pair->values[i]);
-            printf("Value %s is %0.2f\n", temp->product_name, temp->product_cost);
-            cost += temp->product_cost;
+            //printf("Value %s is %0.2f\n", temp->product_name, temp->product_cost);
+            cost += temp->product_cost - (temp->product_cost * temp->product_discount);
         }
         else {
             break;
@@ -445,7 +445,7 @@ static void update_products(GtkWidget *widget, ProductFieldSet *fields){
     strcpy(name_final, gtk_entry_get_text(GTK_ENTRY(fields->product_name)));
     float cost = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_cost)));
     float discount = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_discount)));
-    passthrough = new_product_v2(id, name_final, cost);
+    passthrough = new_product_v2(id, name_final, cost, discount);
     passthrough->product_discount = discount;
     int success = process_product_fields(passthrough, auto_increment);
     if (success == 1){
