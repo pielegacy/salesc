@@ -307,7 +307,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         //g_signal_connect(GTK_WIDGET(label), "clicked", G_CALLBACK(gtk_main_quit), NULL);  
         gtk_widget_show_all(GTK_WIDGET(pair->output));
     }
-    free(searchproduct);
+    //free(searchproduct);
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");
 }
 
@@ -445,7 +445,7 @@ static void new_product_window(GtkWidget *widget, GtkBuilder *oldbuilder){
 static void update_products(GtkWidget *widget, ProductFieldSet *fields){
     Product *passthrough = malloc(sizeof(Product) + 1);
     int id = atoi(gtk_entry_get_text(GTK_ENTRY(fields->product_id)));
-    char *name_final = malloc(sizeof(fields->product_name));
+    char *name_final = malloc(sizeof(fields->product_name) + 1);
     strcpy(name_final, gtk_entry_get_text(GTK_ENTRY(fields->product_name)));
     float cost = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_cost)));
     float discount = atof(gtk_entry_get_text(GTK_ENTRY(fields->product_discount)));
