@@ -218,7 +218,7 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     sale_window = gtk_builder_get_object(builder, "mainwindow");
 
     product_search = gtk_builder_get_object(builder, "product_entry");
-    process_button = gtk_builder_get_object(builder, "payment_process");
+    //process_button = gtk_builder_get_object(builder, "payment_process");
     sale_list = gtk_builder_get_object(builder, "sale_products");
     payment_cash = gtk_builder_get_object(builder, "payment_cash");
     payment_debit = gtk_builder_get_object(builder, "payment_debit");
@@ -238,7 +238,7 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     product_list = gtk_builder_get_object(builder, "product_list");
     fill_product_list(product_list, searchtolist);
     g_signal_connect(product_search, "activate", G_CALLBACK(add_sale_list), searchtolist);
-    g_signal_connect(process_button, "clicked", G_CALLBACK(clear_window), sale_window);
+    //g_signal_connect(process_button, "clicked", G_CALLBACK(clear_window), sale_window);
     g_signal_connect(payment_cash, "activate", G_CALLBACK(total_sale_list), searchtolist);
     g_signal_connect(payment_cash, "focus-out-event", G_CALLBACK(clear_payment_field), searchtolist);
     g_signal_connect(payment_debit, "activate", G_CALLBACK(total_sale_list), searchtolist);

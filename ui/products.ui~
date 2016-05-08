@@ -148,7 +148,7 @@
                         <property name="can_focus">True</property>
                         <property name="hexpand">True</property>
                         <property name="vexpand">True</property>
-                        <property name="placeholder_text" translatable="yes">Product Discount (%)</property>
+                        <property name="placeholder_text" translatable="yes">Product Discount (0.00 - 1.00)</property>
                         <property name="input_purpose">digits</property>
                       </object>
                       <packing>
@@ -159,7 +159,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="product_process">
-                        <property name="label" translatable="yes">Add Product</property>
+                        <property name="label" translatable="yes">Submit</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
