@@ -110,7 +110,7 @@ void fill_sales(GObject *sale_list){
     gtk_widget_show_all(GTK_WIDGET(sale_list));
     sqlite3_finalize(result);
     sqlite3_close(db);
-    //free(currentitemlist);
+    free(currentitemlist);
 }
 static void clear_window(GtkWidget *widget, GtkWidget *window){
     gtk_window_close(GTK_WINDOW(window));
@@ -315,11 +315,11 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
 static void total_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     int i;
     float cost = 0.00;
-    Product *temp; //= malloc(sizeof(Product) + 1);
+    Product *temp;
     char* placeholder = malloc(strlen("0000000000.00") + 1);
     for (i = 0; i < pair->count; i++){
         if (pair->values[i] != 0){
-            temp = malloc(sizeof(search_product(pair->values[i])));
+            temp = malloc(sizeof(search_product(pair->values[i])) + 1);
             temp = search_product(pair->values[i]);
             //printf("Value %s is %0.2f\n", temp->product_name, temp->product_cost);
             cost += temp->product_cost - (temp->product_cost * temp->product_discount);

@@ -40,6 +40,7 @@ int process_product_fields(Product *product, int autoinc){
         add_product(product, 0);
         return 1;
     }
+    free(checker);
     return 0;
 }
 void fill_product_fields(ProductFieldSet *fields){
