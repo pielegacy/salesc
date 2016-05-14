@@ -23,7 +23,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
    return 0;
 }
 Product *new_product(int id, char name[120], float cost, float discount){
-    Product *temp = malloc(sizeof(Product));
+    Product *temp = malloc(sizeof(Product) + 1);
     temp->product_id = id;
     strcpy(temp->product_name, name);
     temp->product_cost = cost;
@@ -31,7 +31,7 @@ Product *new_product(int id, char name[120], float cost, float discount){
     return temp;
 }
 Product *new_product_v2(int id, char *name, float cost, float discount){
-    Product *temp = malloc(sizeof(Product));
+    Product *temp = malloc(sizeof(Product) + 1);
     temp->product_id = id;
     strcpy(temp->product_name, name);
     temp->product_cost = cost;
@@ -58,7 +58,7 @@ SellFromID *new_sell_from_id(int group, int product, int payment, float sale_pri
      return temp;
 }
 Payment *new_payment(int id, int paytype, float received){
-    Payment *temp = malloc(sizeof(Payment));
+    Payment *temp = malloc(sizeof(Payment) + 1);
     temp->payment_id = id;
     temp->payment_type = paytype;
     temp->payment_amount = received;
