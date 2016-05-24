@@ -14,7 +14,8 @@ typedef struct searchsubmit{
     GObject *window;
     GtkBuilder *builder;
     int count;
-    int values[100];
+    // int values[100];
+    int *values;
     int id;
 } SearchSubmitPair;
 // Allows products to be submitted to the database

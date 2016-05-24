@@ -210,7 +210,7 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     GObject *payment_credit;
     GObject *payment_cheque;
     
-    int val[100];
+    int *val;
     // I <3 James Qu      
     builder = gtk_builder_new();
     db_create(1);
@@ -233,7 +233,7 @@ static void new_sale_window(GtkWidget *widget, GtkBuilder *oldbuilder){
     searchtolist->builder = builder;
     searchtolist->count = 0;
     searchtolist->window = sale_window;
-    memcpy(searchtolist->values, val, sizeof(val) + 1);
+    //memcpy(searchtolist->values, val, sizeof(val) + 1);
     
     product_list = gtk_builder_get_object(builder, "product_list");
     fill_product_list(product_list, searchtolist);
@@ -300,13 +300,24 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         const char* label_text = res;
         label = gtk_label_new(label_text);
         printf("%s\n", label_text);
-        pair->values[pair->count] = searchproduct->product_id;
-        pair->count += 1;
+        // Dyanmic Memory Allocation
+        int *temp_list;
+        //pair->values[pair->count] = searchproduct->product_id;
+        pair->count++;
+        temp_list = (int *)realloc(pair->values, sizeof(int) * pair->count);
+        if (temp_list){
+            pair->values = temp_list;
+            pair->values[pair->count - 1] = searchproduct->product_id;
+        }
+        else {
+            printf("Dun didn't work");
+        }
         //printf("%s added for $%0.2f, size of sale increased to : %d\n", searchproduct->product_name, searchproduct->product_cost, pair->count);
         gtk_list_box_insert(GTK_LIST_BOX(pair->output), label, 100);
         //g_signal_connect(GTK_WIDGET(label), "clicked", G_CALLBACK(gtk_main_quit), NULL);  
         gtk_widget_show_all(GTK_WIDGET(pair->output));
     }
+    //free(temp_list);
     //free(searchproduct);
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");
 }
