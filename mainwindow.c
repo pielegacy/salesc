@@ -44,6 +44,7 @@ int main(int argc, char *argv[]){
     //sale_list = gtk_builder_get_object(builder, "sales_list");
     refresh_sales = gtk_builder_get_object(builder, "refresh_sales");
     //fill_sales(sale_list);
+    g_signal_connect(menu_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(refresh_sales, "clicked", G_CALLBACK(view_sale_list_window), NULL);
     g_signal_connect(new_sale, "clicked", G_CALLBACK(new_sale_window), builder);
     g_signal_connect(new_product, "clicked", G_CALLBACK(new_product_window), builder);
@@ -301,7 +302,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         label = gtk_label_new(label_text);
         printf("%s\n", label_text);
         // Dyanmic Memory Allocation
-        int *temp_list;
+        int *temp_list = malloc(sizeof(int) * 1 + 1);
         //pair->values[pair->count] = searchproduct->product_id;
         pair->count++;
         temp_list = (int *)realloc(pair->values, sizeof(int) * pair->count);
