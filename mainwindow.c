@@ -154,7 +154,7 @@ static void view_sale_window(GtkWidget *widget, gpointer sale_pointer){
     int paytype = 0;
     char *sql_statement = sqlite3_mprintf("SELECT * FROM SALES WHERE SALE_GROUP = %d;", sale_group);
     sqlite3_prepare_v2(db, sql_statement, 128, &result, NULL); 
-    while ((rc = sqlite3_step(result)) != SQLITE_DONE){
+    while ((rc = sqlite3_step(result)) != SQLITE_ERROR){
         Product *temp = malloc(sizeof(Product) + 1);
         temp = search_product(sqlite3_column_int(result, 2));
         payment_amount = payment_amount_retrieve(sqlite3_column_int(result, 3));
