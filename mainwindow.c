@@ -292,6 +292,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
     GtkWidget *label;
     sqlite3 *db;
     int rc;
+    int *temp_list = (int *)malloc(sizeof(int) * 1 + 1);
     SearchSubmitPair *temp = malloc(sizeof(SearchSubmitPair) + 1);
     memcpy(temp, pair, sizeof(pair) + 1);
     Product *searchproduct = search_product(atoi(gtk_entry_get_text(GTK_ENTRY(pair->input))));
@@ -303,7 +304,6 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         label = gtk_label_new(label_text);
         printf("%s\n", label_text);
         // Dyanmic Memory Allocation
-        int *temp_list = (int *)malloc(sizeof(int) * 1 + 1);
         //pair->values[pair->count] = searchproduct->product_id;
         pair->count++;
         temp_list = (int *)realloc(pair->values, sizeof(int) * pair->count);
@@ -319,6 +319,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         //g_signal_connect(GTK_WIDGET(label), "clicked", G_CALLBACK(gtk_main_quit), NULL);  
         gtk_widget_show_all(GTK_WIDGET(pair->output));
     }
+    // Not sure why but freeing this stuff results in legit sh*t tonnes of errors :/
     //free(temp_list);
     //free(searchproduct);
     gtk_entry_set_text(GTK_ENTRY(pair->input), "");
