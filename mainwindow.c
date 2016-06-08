@@ -302,7 +302,7 @@ static void add_sale_list(GtkWidget *widget, SearchSubmitPair *pair){
         label = gtk_label_new(label_text);
         printf("%s\n", label_text);
         // Dyanmic Memory Allocation
-        int *temp_list = malloc(sizeof(int) * 1 + 1);
+        int *temp_list = (int *)malloc(sizeof(int) * 1 + 1);
         //pair->values[pair->count] = searchproduct->product_id;
         pair->count++;
         temp_list = (int *)realloc(pair->values, sizeof(int) * pair->count);
